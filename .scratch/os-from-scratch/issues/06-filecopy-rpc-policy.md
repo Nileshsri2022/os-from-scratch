@@ -11,9 +11,17 @@ Policy as data, not code; confused-deputy risks (agent must not let callers esca
 destination dir); streaming with size caps; audit line per decision.
 
 ## Design
-- Policy file `~/.config/miniqubes/policy.json`: list of `{src, service, dst, allow}` rules,
-  first match wins, **default deny**. `*` wildcards allowed per field.
+- Policy file `~/.config/miniqubes/policy.json` (`MINIQUIBES_POLICY` overrides; used by tests):
+  list of `{src, service, dst, allow}` rules, first match wins, **default deny**.
+  `*` wildcards allowed per field. Host-originated `Core.call` uses source token `host`.
+  **Bootstrap:** file missing → built-in defaults (`host` may `ping`/`info`, everything else
+  denied — mirrors upstream shipped `policy.d`); file present → it is authoritative.
 - `Core.call` gains a policy check before dialing (ticket 03's call path); denial → QubesError + log line.
+- Transfer: **host-mediated chunked relay** — Core streams 256 KiB chunks (`filecopy.read`
+  on src agent → `filecopy.write` on dst agent) over the ticket-03 channel, so the 64 MiB
+  file cap survives the channel's 1 MiB frame cap. (Upstream qrexec data also transits dom0
+  daemons.) Destination writes a temp file, verifies sha256, then atomically renames —
+  failed transfers leave no partial file.
 - `filecopy` service in agent: read file (source side) / write file (dest side, basename only,
   into `~/QubesIncoming/<src>/`), 64 MiB cap v1, sha256 verified end-to-end.
   **Path safety (RE: qubes-core-agent-linux `qfile-unpacker`/`qubes-fs-tree-check`):** the
