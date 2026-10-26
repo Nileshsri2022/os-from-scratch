@@ -68,6 +68,13 @@ Yes, with three recorded deviations:
 3. **REA's binary engines (Ghidra/Hopper) were not run**: all targets are open-source, and
    REA's own routing prescribes evidence-backed source analysis for complete source repos.
    Binary-level REA remains available for shipped artifacts (e.g., a Qubes ISO) later.
+4. **Ask-matt setup precondition was incomplete until the 2026-10-26 docs audit**:
+   `docs/agents/issue-tracker.md`, `docs/agents/domain.md`, and the `## Agent skills`
+   block in `AGENTS.md` were missing, and GLOSSARY/spec predated the skill formats.
+   All closed in that audit (spec gained Problem statement + User stories + Testing
+   decisions; GLOSSARY moved to the prescribed format; our two deliberate convention
+   deviations — spec at `docs/spec.md`, richer ticket template — are now recorded in
+   `docs/agents/issue-tracker.md` instead of being silent).
 
 Plus one process bug found & fixed 2026-10-26: ticket 01/03 `Status` fields and checkboxes
 lagged their (correct) Result sections due to a parallel-edit race in the agent tooling;

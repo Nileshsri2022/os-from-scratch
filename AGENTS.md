@@ -7,7 +7,8 @@ dropped into [`somecoolprojects`](https://github.com/Nileshsri2022/somecoolproje
 
 ## The flow (ask-matt main flow: idea → ship)
 
-Installed skills live in `.agents/skills/` (`ask-matt`, `ponytail`). Per ask-matt, work travels:
+Installed skills live in `.agents/skills/` (`ask-matt`, `ponytail`, `reverse-engineer-anything`).
+Per ask-matt, work travels:
 
 1. **Research first** — facts are the agent's job. Findings go in `docs/` as cited Markdown
    (e.g. popularity survey, reverse-engineering reports).
@@ -22,7 +23,7 @@ Installed skills live in `.agents/skills/` (`ask-matt`, `ponytail`). Per ask-mat
 
 Every ticket gets its document **before** code: goal, concepts, design (algorithms & data
 structures), steps, how we verify. The doc is written/updated first, then the code, then the
-doc is closed out with what actually happened (boot evidence, shortcuts taken).
+doc is closed out with what actually happened (demo evidence, shortcuts taken).
 
 Ticket doc template: Goal → Concepts → Design → Steps → Verify → Result & shortcuts.
 
@@ -32,7 +33,7 @@ The smallest change that fully solves the ticket. Before writing anything, walk 
 does it need to exist → already here → platform/stdlib → installed dependency → one line →
 minimum code that works. No abstractions or "for later" code nobody asked for. A shortcut with
 a known limit gets a comment: `shortcut: <limit>, <when to upgrade>`. Every change leaves one
-check behind (for an OS: it builds warning-free and boots in QEMU to the expected screen).
+check behind (here: the unit suite stays green and the ticket's CLI demo works).
 
 ## Reverse-engineering rule (REA)
 
@@ -52,25 +53,43 @@ binaries/artifacts (installer ISOs, kernel ELFs) and runtime behavior.
 
 ## Verification
 
-- Code must build with `-Wall -Wextra` clean (or Rust equivalent) before a ticket closes.
-- Boot evidence (QEMU screenshot/serial log) is attached to the ticket doc.
-- Known sandbox gap: no QEMU/NASM/Rust preinstalled here; P0 (scaffold) resolves the toolchain
-  or states exactly which commands the owner runs locally.
+- `python3 -m unittest discover -s tests` must be green before a ticket closes (Python,
+  stdlib-only — ADR-0002; new dependency needs an ADR).
+- Each ticket's **Result** carries its evidence: TDD red→green, a CLI demo transcript,
+  self code-review notes, and any `shortcut:` taken.
+- Known sandbox gap: no `/dev/kvm`, QEMU, or libvirt here → tickets needing real VMs
+  (02/04/05/07) close only on the owner's KVM machine, following the ticket's verify
+  checklist and its runbook under `docs/guides/`.
 
 ## Layout
 
 ```
 .
 ├── AGENTS.md                 ← this file
-├── GLOSSARY.md               ← created by the grilling session
+├── GLOSSARY.md               ← shared vocabulary (grill-with-docs output)
 ├── docs/
-│   ├── proposal.md           ← the plan being agreed right now
-│   ├── spec.md               ← after grilling
+│   ├── proposal.md           ← the original agreed plan
+│   ├── spec.md               ← MiniQubes v1 spec (to-spec output)
+│   ├── STATUS.md             ← step-by-step tracker (what's done / what's next)
 │   ├── adr/                  ← architecture decision records
+│   ├── agents/               ← skill config: issue tracker + domain doc rules
+│   ├── guides/               ← runbooks (e.g. ticket 02 on the owner's machine)
+│   ├── research/             ← surveys + the 215-repo graph
 │   └── reverse-engineering/  ← REA-style reports (permitted targets only)
 ├── .scratch/os-from-scratch/issues/   ← tickets, blockers-first
-├── .agents/skills/           ← ask-matt, ponytail (installed via `npx skills add`)
+├── .agents/skills/           ← ask-matt, ponytail, REA (via `npx skills add`)
 ├── miniqubes/                ← the OS control plane (core, backends, channel, policy, cli)
 ├── guest/                    ← code that runs inside qubes (guest agent)
 └── tests/                    ← stdlib unittest suite (must stay green)
 ```
+
+## Agent skills
+
+### Issue tracker
+
+Local markdown: one file per ticket under `.scratch/os-from-scratch/issues/`; the spec
+lives at `docs/spec.md`. See `docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Single-context: `GLOSSARY.md` at the repo root + `docs/adr/`. See `docs/agents/domain.md`.
