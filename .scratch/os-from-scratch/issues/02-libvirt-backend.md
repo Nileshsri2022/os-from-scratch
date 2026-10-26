@@ -1,6 +1,7 @@
 # 02 — LibvirtBackend: real KVM qubes
 
 Blocked by: 01 · Status: todo · **Closes only on the owner's machine (KVM + libvirt).**
+Step-by-step runbook (Hinglish): `docs/guides/02-libvirt-backend-guide.md`
 
 ## Goal
 Same CLI, real VMs: `create/start/stop/list` drive libvirt domains (QEMU/KVM).

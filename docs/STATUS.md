@@ -18,7 +18,7 @@ ticket with TDD + code-review), ponytail for coding, REA discipline for reverse-
 | 7 | Implement ticket 01 | Core lifecycle + FakeBackend + CLI (9 tests) | ✅ done |
 | 8 | Implement ticket 03 | Guest agent + RPC channel (M1 "Brain") | ✅ done |
 | 9 | Implement ticket 06 | Policy engine + secure filecopy (36 tests total) | ✅ done |
-| 10 | Implement ticket 02 | LibvirtBackend — real KVM VMs | ⏳ **owner's machine** (no KVM in sandbox) |
+| 10 | Implement ticket 02 | LibvirtBackend — real KVM VMs | ⏳ **owner's machine** (no KVM in sandbox) — step-by-step guide ready: `docs/guides/02-libvirt-backend-guide.md` |
 | 11 | Implement tickets 04, 05, 07 | Template CoW clones → NAT networking → SPICE window | ⏳ blocked by 02 |
 
 ## Which upstream repo did we start with, and its status
