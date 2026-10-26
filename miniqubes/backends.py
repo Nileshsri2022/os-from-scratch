@@ -13,10 +13,12 @@ from pathlib import Path
 
 from .core import Qube, RUNNING, STOPPED
 
+AGENT_BASE_PORT = 27000  # FakeBackend assigns loopback agent ports upward from here
+
 
 class Backend(abc.ABC):
-    """Exactly six operations. Small on purpose: the fake must not drift
-    from libvirt semantics (ADR-0003)."""
+    """Six lifecycle operations plus one addressing hook. Small on purpose:
+    the fake must not drift from libvirt semantics (ADR-0003 + addendum)."""
 
     @abc.abstractmethod
     def create(self, qube: Qube) -> None: ...
@@ -35,6 +37,11 @@ class Backend(abc.ABC):
 
     @abc.abstractmethod
     def list(self) -> list[Qube]: ...
+
+    def agent_endpoint(self, name: str):
+        """Where the qube's guest agent listens: ("tcp", host, port) in dev,
+        ("vsock", cid, port) for real guests. None = no channel (yet)."""
+        return None
 
 
 def default_state_path() -> Path:
@@ -74,7 +81,12 @@ class FakeBackend(Backend):
     # -- Backend ---------------------------------------------------------
     def create(self, qube: Qube) -> None:
         qubes = self._load()
-        qubes[qube.name] = {"name": qube.name, "template": qube.template, "state": STOPPED}
+        used = {row.get("agent_port") for row in qubes.values()}
+        port = AGENT_BASE_PORT
+        while port in used:
+            port += 1
+        qubes[qube.name] = {"name": qube.name, "template": qube.template,
+                            "state": STOPPED, "agent_port": port}
         self._save(qubes)
 
     def start(self, name: str) -> None:
@@ -98,3 +110,9 @@ class FakeBackend(Backend):
 
     def list(self) -> list[Qube]:
         return [self._to_qube(r) for r in self._load().values()]
+
+    def agent_endpoint(self, name: str):
+        row = self._load().get(name)
+        if row is None or row.get("agent_port") is None:
+            return None
+        return ("tcp", "127.0.0.1", row["agent_port"])

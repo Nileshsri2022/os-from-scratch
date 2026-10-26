@@ -19,3 +19,9 @@ operations: `create, start, stop, remove, get, list`.
   and ticket 02 must pass the *same* lifecycle test-suite shape against libvirt on the owner's
   machine before it closes.
 - The fake is a permanent dev tool, not throwaway code — labelled as such, not a mock of record.
+
+## Addendum (ticket 03, 2026-10-26)
+Backend grew a 7th method, `agent_endpoint(name)` — where a qube's guest agent listens —
+with a default implementation returning `None` ("no channel"), so existing backends stay
+valid. FakeBackend returns `("tcp", "127.0.0.1", port)` (port assigned at create);
+LibvirtBackend (ticket 02) will return `("vsock", cid, port)`. Core stays transport-blind.

@@ -5,8 +5,9 @@ isolated VM "qubes" on Linux + KVM, a small trusted control plane, deny-by-defau
 policy-checked RPC between qubes. Spec: [docs/spec.md](docs/spec.md) ·
 Words: [GLOSSARY.md](GLOSSARY.md) · Decisions: [docs/adr/](docs/adr/)
 
-**Status:** 🚧 ticket 01 done — control-plane skeleton (Core lifecycle + FakeBackend + CLI),
-9 tests green. Real KVM backend is ticket 02. Tracker: `.scratch/os-from-scratch/issues/`
+**Status:** 🧠 **M1 "Brain" reached** — tickets 01+03 done (control plane + guest-agent RPC
+channel), 21 tests green. Milestones: [docs/spec.md](docs/spec.md). M2 "Initial OS" (real VMs)
+needs ticket 02+04 on a KVM machine. Tracker: `.scratch/os-from-scratch/issues/`
 
 ```bash
 python3 -m miniqubes create personal --template fedora-40

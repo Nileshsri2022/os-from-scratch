@@ -40,5 +40,35 @@ Tests green incl. malformed/oversized/garbage cases; `python3 -m miniqubes call 
 → `pong` (agent on loopback); calling a stopped qube fails with a clean error.
 Real-guest vsock transcript appended when 02 lands.
 
-## Result
-(filled on completion)
+## Result (2026-10-26)
+Shipped as designed: `miniqubes/channel.py` (framing + `rpc_call` + `serve`),
+`guest/agent.py` (`ping`/`info`), `Backend.agent_endpoint` (+ ADR-0003 addendum),
+`QubesCore.call`, CLI `call NAME SERVICE [JSON]`. **Milestone M1 "Brain" reached.**
+
+Evidence — TDD: new tests written first (suite red: 2 import errors), then green:
+`python3 -m unittest discover -s tests` → **21 tests OK** (9 old + 12 new: frame codec,
+oversized/invalid rejection, garbage-survival, Core.call rules, unreachable agent).
+Demo (agent on loopback :27000, FakeBackend):
+```
+$ python3 -m miniqubes call personal ping     # before start → error: qube is not running (exit 1)
+$ python3 -m miniqubes start personal
+$ python3 -m miniqubes call personal ping     → pong
+$ python3 -m miniqubes call personal info     → {"hostname": …, "agent_uptime_s": …, "python": "3.11.2"}
+$ python3 -m miniqubes call personal bogus    → error: RPC 'bogus' … unknown service (exit 1)
+```
+
+### Code review (self, ask-matt two-axis)
+- **Standards:** stdlib only; no new deps; shortcuts labelled in code (sequential accept
+  loop; one connection per call); tests left green.
+- **Spec:** every Verify item evidenced above except real-guest vsock (blocked by 02, carried).
+- **Findings caught & fixed while writing/reviewing:**
+  1. Accepted sockets inherit the listener's 0.2s timeout → idle RPC connections would die;
+     `conn.settimeout(None)` after accept.
+  2. A handler returning a non-JSON-serializable result would raise `TypeError` inside
+     `send_frame` and kill `serve` → result is serialization-checked; handler errors become
+     `ok:false` responses instead.
+
+Shortcuts taken:
+- `shortcut: sequential connections in serve(), thread-per-connection when concurrent calls exist`
+- `shortcut: vsock code paths (connect/agent --vsock) untested in sandbox — first real run is ticket 02`
+- `shortcut: pre-ticket-03 FakeBackend state files have no agent_port → recreate those qubes`

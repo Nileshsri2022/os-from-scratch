@@ -9,6 +9,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from .channel import ProtocolError, rpc_call
+
 _NAME_RE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]{0,30}$")
 
 STOPPED = "stopped"
@@ -75,3 +77,24 @@ class QubesCore:
 
     def list_qubes(self) -> list[Qube]:
         return sorted(self.backend.list(), key=lambda q: q.name)
+
+    # -- guest agent RPC ---------------------------------------------------
+    def call(self, name: str, service: str, args: dict | None = None):
+        """Invoke an RPC service on a running qube's guest agent (ticket 03).
+
+        Policy check lands here in ticket 06, before the dial — deny by default.
+        """
+        qube = self._require(name)
+        if qube.state != RUNNING:
+            raise QubesError(f"qube is not running: {name!r}")
+        endpoint = self.backend.agent_endpoint(name)
+        if endpoint is None:
+            raise QubesError(f"no agent endpoint for qube {name!r} "
+                             "(backend provides no channel)")
+        try:
+            return rpc_call(endpoint, service, args)
+        except ProtocolError as exc:
+            raise QubesError(f"RPC {service!r} to {name!r} failed: {exc}") from exc
+        except OSError as exc:
+            raise QubesError(
+                f"agent of qube {name!r} unreachable at {endpoint}: {exc}") from exc
