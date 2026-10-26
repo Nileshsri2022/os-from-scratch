@@ -18,7 +18,7 @@ ticket with TDD + code-review), ponytail for coding, REA discipline for reverse-
 | 7 | Implement ticket 01 | Core lifecycle + FakeBackend + CLI (9 tests) | ✅ done |
 | 8 | Implement ticket 03 | Guest agent + RPC channel (M1 "Brain") | ✅ done |
 | 9 | Implement ticket 06 | Policy engine + secure filecopy (36 tests total) | ✅ done |
-| 10 | Implement ticket 02 | LibvirtBackend — real KVM VMs | ⏳ **owner's machine** (no KVM in sandbox) — step-by-step guide ready: `docs/guides/02-libvirt-backend-guide.md` |
+| 10 | Implement ticket 02 | LibvirtBackend — real KVM VMs | 🔶 **code done + 14 fake-libvirt unit tests (sandbox, 2026-10-26)**; real-VM verification still ⏳ **owner's machine** — guide: `docs/guides/02-libvirt-backend-guide.md` Steps 1–3 + 5–6 |
 | 11 | Implement tickets 04, 05, 07 | Template CoW clones → NAT networking → SPICE window | ⏳ blocked by 02 |
 
 ## Which upstream repo did we start with, and its status
@@ -52,8 +52,8 @@ meaning without it:
 
 ## Numbers
 
-Our OS code: **741 lines of Python** (`miniqubes/` 575 + `guest/` 166); tests 606 lines,
-**36 passing**. Upstream Tier B equivalent scope: ~366k LOC. The difference is reuse
+Our OS code: **927 lines of Python** (`miniqubes/` 761 + `guest/` 166); tests 823 lines,
+**50 passing**. Upstream Tier B equivalent scope: ~366k LOC. The difference is reuse
 (KVM/QEMU, libvirt, Linux, distro userland) plus ponytail scope discipline.
 
 ## Is this the correct flow? — honest deviations list

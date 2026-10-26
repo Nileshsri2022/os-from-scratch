@@ -1,6 +1,7 @@
 """CLI — `python3 -m miniqubes <command>` (think upstream's qvm-* tools).
 
-shortcut: FakeBackend only, LibvirtBackend selection lands in ticket 02.
+Backend is chosen by `default_backend()` (`MINIQUIBES_BACKEND=libvirt|fake`,
+default fake; ticket 02) — the CLI itself never learns which one it got.
 """
 from __future__ import annotations
 
@@ -8,7 +9,7 @@ import argparse
 import json
 import sys
 
-from .backends import FakeBackend
+from .backends import default_backend
 from .core import QubesCore, QubesError
 
 
@@ -45,8 +46,8 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    core = QubesCore(FakeBackend())
     try:
+        core = QubesCore(default_backend())
         if args.command == "create":
             q = core.create_qube(args.name, template=args.template)
             tmpl = f" (template: {q.template})" if q.template else ""
