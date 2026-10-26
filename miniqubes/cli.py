@@ -34,6 +34,12 @@ def build_parser() -> argparse.ArgumentParser:
     cl.add_argument("name")
     cl.add_argument("service")
     cl.add_argument("args", nargs="?", default=None, help="optional JSON object, e.g. '{\"k\": 1}'")
+
+    fc = sub.add_parser(
+        "filecopy",
+        help="copy a file between qubes into ~/QubesIncoming/<src>/ (policy-checked)")
+    fc.add_argument("src", help="SRCQUBE:/absolute/path")
+    fc.add_argument("dst", help="destination qube")
     return p
 
 
@@ -72,6 +78,15 @@ def main(argv: list[str] | None = None) -> int:
                     return 1
             result = core.call(args.name, args.service, rpc_args)
             print(result if isinstance(result, str) else json.dumps(result, indent=1))
+        elif args.command == "filecopy":
+            src_qube, sep, src_path = args.src.partition(":")
+            if not sep or not src_path.startswith("/"):
+                print("error: source must look like SRCQUBE:/absolute/path",
+                      file=sys.stderr)
+                return 1
+            res = core.filecopy(src_qube, src_path, args.dst)
+            print(f"copied {res['name']} ({res['size']} bytes, "
+                  f"sha256 {res['sha256'][:12]}…) {src_qube} -> {args.dst}:{res['path']}")
     except QubesError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1

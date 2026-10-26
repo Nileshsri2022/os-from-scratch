@@ -70,7 +70,7 @@ binaries/artifacts (installer ISOs, kernel ELFs) and runtime behavior.
 │   └── reverse-engineering/  ← REA-style reports (permitted targets only)
 ├── .scratch/os-from-scratch/issues/   ← tickets, blockers-first
 ├── .agents/skills/           ← ask-matt, ponytail (installed via `npx skills add`)
-├── miniqubes/                ← the OS control plane (core, backends, channel, cli)
+├── miniqubes/                ← the OS control plane (core, backends, channel, policy, cli)
 ├── guest/                    ← code that runs inside qubes (guest agent)
 └── tests/                    ← stdlib unittest suite (must stay green)
 ```

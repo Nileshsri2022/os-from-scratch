@@ -13,6 +13,11 @@ import socket
 import struct
 
 MAX_FRAME = 1 << 20  # 1 MiB per frame, both directions
+
+# filecopy conventions (ticket 06): both sides import these from here so
+# chunking can never outgrow the frame cap (256 KiB raw ≈ 342 KiB base64).
+FILECOPY_CHUNK = 256 * 1024
+FILECOPY_MAX = 64 * 1024 * 1024  # largest file filecopy will move, v1
 _HDR = struct.Struct(">I")
 
 

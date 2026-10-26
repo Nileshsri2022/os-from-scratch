@@ -1,9 +1,11 @@
 """Core.call through FakeBackend to a real loopback agent (ticket 03)."""
+import os
 import socket
 import tempfile
 import threading
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from guest.agent import HANDLERS
 from miniqubes import backends
@@ -26,6 +28,10 @@ class CoreCallTest(unittest.TestCase):
         self._old_base = backends.AGENT_BASE_PORT
         backends.AGENT_BASE_PORT = free_port()
         self.backend = FakeBackend(Path(self.tmp.name) / "fake.json")
+        # Hermetic policy (ticket 06): nonexistent file → bootstrap defaults.
+        self._env = mock.patch.dict(os.environ, {
+            "MINIQUIBES_POLICY": str(Path(self.tmp.name) / "absent-policy.json")})
+        self._env.start()
         self.core = QubesCore(self.backend)
         self.core.create_qube("personal")
         _, host, port = self.backend.agent_endpoint("personal")
@@ -40,6 +46,7 @@ class CoreCallTest(unittest.TestCase):
         self.listener.close()
         self.thread.join(timeout=2)
         backends.AGENT_BASE_PORT = self._old_base
+        self._env.stop()
         self.tmp.cleanup()
 
     def test_call_requires_running(self):
