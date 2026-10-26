@@ -7,6 +7,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import subprocess
 import sys
 
 from .backends import default_backend
@@ -41,6 +43,9 @@ def build_parser() -> argparse.ArgumentParser:
         help="copy a file between qubes into ~/QubesIncoming/<src>/ (policy-checked)")
     fc.add_argument("src", help="SRCQUBE:/absolute/path")
     fc.add_argument("dst", help="destination qube")
+
+    op = sub.add_parser("open", help="open the qube's desktop window (SPICE, ticket 07)")
+    op.add_argument("name")
     return p
 
 
@@ -81,13 +86,26 @@ def main(argv: list[str] | None = None) -> int:
             print(result if isinstance(result, str) else json.dumps(result, indent=1))
         elif args.command == "filecopy":
             src_qube, sep, src_path = args.src.partition(":")
-            if not sep or not src_path.startswith("/"):
+            # guest paths are usually POSIX, but the host test env may be Windows —
+            # accept any absolute path the current platform understands
+            if not sep or not os.path.isabs(src_path):
                 print("error: source must look like SRCQUBE:/absolute/path",
                       file=sys.stderr)
                 return 1
             res = core.filecopy(src_qube, src_path, args.dst)
             print(f"copied {res['name']} ({res['size']} bytes, "
                   f"sha256 {res['sha256'][:12]}…) {src_qube} -> {args.dst}:{res['path']}")
+        elif args.command == "open":
+            kind, host, port = core.graphics_uri(args.name)
+            try:
+                # --title is the host-drawn trust anchor: the qube name stays
+                # on the window no matter what the guest renders inside
+                subprocess.run(["remote-viewer", f"--title=[{args.name}]",
+                                f"{kind}://{host}:{port}"], check=False)
+            except FileNotFoundError as exc:
+                print("error: remote-viewer not found — install the distro's "
+                      "virt-viewer package", file=sys.stderr)
+                return 1
     except QubesError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1

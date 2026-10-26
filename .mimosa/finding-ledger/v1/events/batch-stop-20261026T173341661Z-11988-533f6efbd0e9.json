@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "stop-20261026T173341661Z-11988-533f6efbd0e9",
+  "runId": "20261026T173341661Z-11988-533f6efbd0e9",
+  "runStatus": "completed",
+  "coverage": {
+    "status": "complete",
+    "reasons": []
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "Stop"
+  },
+  "revision": null,
+  "diffHash": "29006d32e418d1bf79f98009c910beb30040c89b96af3024779e630aa07dc510",
+  "rulesVersion": "unavailable",
+  "sessionHash": "6bd35a9af6e4fe26df8c450b85954504316d82927cf4d39b919b901cd1d00d13",
+  "reportRef": ".mimosa/reports/task-review-session_d44473f1208b3a509020993aaf506d86-20261026T173341661Z-11988-533f6efbd0e9.json",
+  "events": [
+    {
+      "eventId": "hook-aa14c2100088253afd7889d8071e5a5f",
+      "findingId": "mimosa-de00b0f33718d5fc406fcb89",
+      "type": "finding_blocked",
+      "at": "2026-10-26T17:27:49.557Z",
+      "identity": {
+        "projectRelativeFile": "docs/research/qubesos/audit_repos.py",
+        "ruleId": "security",
+        "codeEvidenceHash": "fcf8b89ffe1d620716615178748199f4136039daa452a12cbaa37b1adf85739f",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 93,
+      "endLine": 93,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "fcf8b89ffe1d620716615178748199f4136039daa452a12cbaa37b1adf85739f"
+      },
+      "sequence": 0
+    },
+    {
+      "eventId": "hook-79990b32d9fa6d1e62e2aab0b21150e3",
+      "findingId": "mimosa-de00b0f33718d5fc406fcb89",
+      "type": "finding_blocked",
+      "at": "2026-10-26T17:28:30.639Z",
+      "identity": {
+        "projectRelativeFile": "docs/research/qubesos/audit_repos.py",
+        "ruleId": "security",
+        "codeEvidenceHash": "fcf8b89ffe1d620716615178748199f4136039daa452a12cbaa37b1adf85739f",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 95,
+      "endLine": 95,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "fcf8b89ffe1d620716615178748199f4136039daa452a12cbaa37b1adf85739f"
+      },
+      "sequence": 1
+    },
+    {
+      "eventId": "hook-4af9296e2ed7dabcdcbdcb5a9df247c3",
+      "findingId": "mimosa-de00b0f33718d5fc406fcb89",
+      "type": "static_fix_verified",
+      "at": "2026-10-26T17:29:29.078Z",
+      "identity": {
+        "projectRelativeFile": "docs/research/qubesos/audit_repos.py",
+        "ruleId": "security",
+        "codeEvidenceHash": "fcf8b89ffe1d620716615178748199f4136039daa452a12cbaa37b1adf85739f",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 95,
+      "endLine": 95,
+      "reasonCode": "static_rescan_passed",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "evidenceHash": "fcf8b89ffe1d620716615178748199f4136039daa452a12cbaa37b1adf85739f"
+      },
+      "sequence": 2
+    }
+  ],
+  "observedFindingIds": [],
+  "verifiedFiles": [
+    {
+      "file": "docs/research/qubesos/audit_repos.py",
+      "direct": "complete",
+      "projectContext": "partial"
+    }
+  ],
+  "recordedAt": "2026-10-26T17:33:42.151Z"
+}

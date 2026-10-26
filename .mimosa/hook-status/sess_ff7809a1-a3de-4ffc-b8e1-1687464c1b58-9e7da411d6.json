@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "mimosa-hook-status/v1",
+  "recordedAt": "2026-10-26T17:47:11.316Z",
+  "sessionId": "sess_ff7809a1-a3de-4ffc-b8e1-1687464c1b58",
+  "event": "PostToolUse",
+  "toolName": "Edit",
+  "file": "C:/Users/niles/.wslconfig",
+  "outcome": "clear",
+  "coverage": "complete",
+  "findingCount": 0,
+  "durationMs": 12,
+  "hostState": "hook_complete",
+  "reportHint": ".mimosa/reports/"
+}

@@ -2,6 +2,9 @@
 
 **Answer: exactly 215 public repositories** (GitHub API, 2026-10-26) — 170 original, 45 forks, 11 archived. Interactive graph: [qubesos/index.html](qubesos/index.html). Which of the 215 actually matter if you want to build this OS: [qubesos-main-repos.md](qubesos-main-repos.md).
 
+**Coverage re-audited 2026-10-26** against a fresh live API pull (no new/removed/changed
+repos; tier + evidence/report coverage verified per repo): [coverage-audit-qubesos-org.md](coverage-audit-qubesos-org.md).
+
 ## The 215, by component family
 
 | Family | Repos | Flagships (by ⭐) |

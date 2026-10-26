@@ -10,9 +10,9 @@ from __future__ import annotations
 import abc
 import json
 import os
-import shutil
+import re
+import subprocess
 import time
-import xml.etree.ElementTree as ET
 from pathlib import Path
 from xml.sax.saxutils import escape
 
@@ -20,6 +20,7 @@ from .core import Qube, QubesError, RUNNING, STOPPED
 
 AGENT_BASE_PORT = 27000  # FakeBackend assigns loopback agent ports upward from here
 AGENT_VSOCK_PORT = 27000  # guest agent vsock port (CIDs differ per qube)
+GRAPHICS_BASE_PORT = 5900  # FakeBackend assigns placeholder SPICE ports upward
 
 
 class Backend(abc.ABC):
@@ -47,6 +48,11 @@ class Backend(abc.ABC):
     def agent_endpoint(self, name: str):
         """Where the qube's guest agent listens: ("tcp", host, port) in dev,
         ("vsock", cid, port) for real guests. None = no channel (yet)."""
+        return None
+
+    def graphics_uri(self, name: str):
+        """Where the qube's desktop can be watched: ("spice", host, port).
+        None = no graphics endpoint (ticket 07)."""
         return None
 
 
@@ -91,8 +97,14 @@ class FakeBackend(Backend):
         port = AGENT_BASE_PORT
         while port in used:
             port += 1
+        g_used = {row.get("graphics_port") for row in qubes.values()}
+        g_port = GRAPHICS_BASE_PORT
+        while g_port in g_used:
+            g_port += 1
         qubes[qube.name] = {"name": qube.name, "template": qube.template,
-                            "state": STOPPED, "agent_port": port}
+                            "state": STOPPED, "agent_port": port,
+                            "graphics_port": g_port,  # placeholder (ticket 07)
+                            "net": True}  # NIC attached (ticket 05); no packet sim
         self._save(qubes)
 
     def start(self, name: str) -> None:
@@ -123,6 +135,12 @@ class FakeBackend(Backend):
             return None
         return ("tcp", "127.0.0.1", row["agent_port"])
 
+    def graphics_uri(self, name: str):
+        row = self._load().get(name)
+        if row is None or row.get("graphics_port") is None:
+            return None
+        return ("spice", "127.0.0.1", row["graphics_port"])
+
 
 def default_disks_dir() -> Path:
     env = os.environ.get("MINIQUIBES_DISKS")
@@ -138,12 +156,25 @@ class LibvirtBackend(Backend):
     libvirt is the source of truth (no state file of our own): the template
     name rides in the domain's <metadata>, and the vsock CID libvirt
     auto-assigns is read back from the domain XML. v1 shape is fixed at
-    1 vCPU / 1 GiB per the ticket; disks are plain file copies under
-    `default_disks_dir()` (CoW clones are ticket 04).
+    1 vCPU / 1 GiB per the ticket; disks are CoW clones of the template
+    (qemu-img backing files, ticket 04).
     """
 
     PREFIX = "mq-"
     META_URI = "https://miniqubes.local/meta"
+    NET_NAME = "mq-net"          # NAT network every qube attaches to (ticket 05)
+    ISOLATE_FILTER = "mq-isolate"  # nwfilter: qube↔qube dropped, internet allowed
+    # Domain XML comes from _domain_xml below (libvirt round-trips the
+    # metadata verbatim), so the two fields we read are extracted with
+    # bounded regexes. shortcut: no general XML parser at all — stdlib
+    # ElementTree expands DTD entities (Mimosa L2) and pip is unusable in
+    # the sandbox for defusedxml; upgrade to defusedxml if we ever parse
+    # third-party domain XML.
+    _TEMPLATE_RE = re.compile(
+        r"<(?:[\w.-]+:)?template\b[^>]*?" + re.escape(META_URI) + r"[^>]*>([^<]*)</")
+    _CID_RE = re.compile(r"<cid\b[^>]*\baddress=['\"](\d+)['\"]")
+    _GRAPHICS_RE = re.compile(
+        r"<graphics\b[^>]*type='spice'[^>]*\bport='(-?\d+)'[^>]*\blisten='([^']*)'")
 
     def __init__(self, disks_dir: Path | None = None, uri: str | None = None,
                  stop_timeout: float = 10.0, poll_interval: float = 0.5):
@@ -165,6 +196,10 @@ class LibvirtBackend(Backend):
     # -- helpers -----------------------------------------------------------
     def _disk_path(self, name: str) -> Path:
         return self.disks / f"{name}.qcow2"
+
+    def _template_disk(self, template: str) -> Path | None:
+        return next((p for p in (self.disks / (template + suffix)
+                    for suffix in (".qcow2", ".img", "")) if p.exists()), None)
 
     def _lookup(self, name: str):
         try:
@@ -188,9 +223,14 @@ class LibvirtBackend(Backend):
   <devices>
     <disk type='file' device='disk'>
       <driver name='qemu' type='qcow2'/>
-      <source file='{escape(str(disk), {"'": "&apos;"})}'/>
+      <source file='{disk}'/>
       <target dev='vda' bus='virtio'/>
     </disk>
+    <interface type='network'>
+      <source network='{LibvirtBackend.NET_NAME}'/>
+      <filterref filter='{LibvirtBackend.ISOLATE_FILTER}'/>
+    </interface>
+    <graphics type='spice' autoport='yes' listen='127.0.0.1'/>
     <vsock model='virtio'><cid auto='yes'/></vsock>
     <console type='pty'/>
   </devices>
@@ -198,28 +238,13 @@ class LibvirtBackend(Backend):
 
     @staticmethod
     def _template_from_xml(xml: str) -> str | None:
-        try:
-            root = ET.fromstring(xml)
-        except ET.ParseError:
-            return None
-        for el in root.iter():
-            if el.tag == f"{{{LibvirtBackend.META_URI}}}template":
-                return el.text or None
-        return None
+        m = LibvirtBackend._TEMPLATE_RE.search(xml)
+        return (m.group(1) or None) if m else None
 
     @staticmethod
     def _cid_from_xml(xml: str) -> int | None:
-        try:
-            root = ET.fromstring(xml)
-        except ET.ParseError:
-            return None
-        for el in root.iter():
-            if el.tag == "cid" and el.get("address"):
-                try:
-                    return int(el.get("address"))
-                except ValueError:
-                    return None
-        return None
+        m = LibvirtBackend._CID_RE.search(xml)
+        return int(m.group(1)) if m else None
 
     def _to_qube(self, dom) -> Qube:
         return Qube(
@@ -233,16 +258,39 @@ class LibvirtBackend(Backend):
         if not qube.template:
             raise QubesError(
                 "libvirt backend: create needs --template <name> (a disk image "
-                f"in {self.disks}; the template system itself is ticket 04)")
-        src = next((p for p in (self.disks / (qube.template + suffix)
-                    for suffix in (".qcow2", ".img", "")) if p.exists()), None)
+                f"in {self.disks}; tools/make-template.sh builds golden images)")
+        src = self._template_disk(qube.template)
         if src is None:
             raise QubesError(
                 f"template disk for {qube.template!r} not found in {self.disks} "
                 "(looked for .qcow2 / .img) — see guide Step 3")
+        # ticket 05: libvirt refuses a define whose network is undefined with
+        # a raw error — pre-check for a clear message, before any disk work
+        try:
+            self._conn.networkLookupByName(self.NET_NAME)
+        except self._libvirt.libvirtError as exc:
+            raise QubesError(
+                f"libvirt network {self.NET_NAME!r} not defined on this host — "
+                "one-time setup in README: virsh nwfilter-define tools/mq-isolate.nwfilter"
+                " && virsh net-define tools/mq-net.xml && virsh net-autostart mq-net"
+            ) from exc
         self.disks.mkdir(parents=True, exist_ok=True)
         disk = self._disk_path(qube.name)
-        shutil.copyfile(src, disk)  # plain copy; CoW backing-file clones: ticket 04
+        # CoW clone (ticket 04): the clone reads the template and writes only
+        # its own deltas — instant create, near-zero space until written
+        try:
+            subprocess.run(
+                ["qemu-img", "create", "-f", "qcow2", "-b", str(src),
+                 "-F", "qcow2" if src.suffix == ".qcow2" else "raw", str(disk)],
+                check=True, capture_output=True)
+        except FileNotFoundError as exc:
+            raise QubesError(
+                "qemu-img not found — the libvirt backend clones template disks "
+                "with it (distro package: qemu-utils)") from exc
+        except subprocess.CalledProcessError as exc:
+            stderr = (exc.stderr or b"").decode(errors="replace").strip()
+            raise QubesError(
+                f"qemu-img could not clone {src.name}: {stderr}") from exc
         try:
             self._conn.defineXML(self._domain_xml(qube, disk))
         except self._libvirt.libvirtError as exc:
@@ -250,8 +298,16 @@ class LibvirtBackend(Backend):
             raise QubesError(f"libvirt refused the domain definition: {exc}") from exc
 
     def start(self, name: str) -> None:
+        dom = self._lookup(name)
+        # guard: a CoW clone reads its backing file at every boot — a vanished
+        # template must fail clearly, not with a cryptic qemu error
+        template = self._template_from_xml(dom.XMLDesc())
+        if template and self._template_disk(template) is None:
+            raise QubesError(
+                f"template disk for {template!r} missing from {self.disks} — "
+                f"qube {name!r} is a CoW clone of it and cannot boot without it")
         try:
-            self._lookup(name).create()
+            dom.create()
         except self._libvirt.libvirtError as exc:
             raise QubesError(f"libvirt could not start qube {name!r}: {exc}") from exc
 
@@ -287,6 +343,16 @@ class LibvirtBackend(Backend):
             return None
         cid = self._cid_from_xml(dom.XMLDesc())
         return ("vsock", cid, AGENT_VSOCK_PORT) if cid is not None else None
+
+    def graphics_uri(self, name: str):
+        # a stopped autoport domain reports port='-1' — nothing to watch yet
+        dom = self._lookup(name)
+        if dom is None:
+            return None
+        m = self._GRAPHICS_RE.search(dom.XMLDesc())
+        if m is None or int(m.group(1)) <= 0 or not m.group(2):
+            return None
+        return ("spice", m.group(2), int(m.group(1)))
 
 
 def default_backend() -> Backend:

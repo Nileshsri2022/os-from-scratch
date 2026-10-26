@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "pretooluse-15c32c87588d2b057f556d0dfa6bb56e",
+  "runId": null,
+  "runStatus": "completed",
+  "coverage": {
+    "status": "complete",
+    "reasons": []
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "PreToolUse"
+  },
+  "revision": null,
+  "diffHash": null,
+  "rulesVersion": null,
+  "sessionHash": "6bd35a9af6e4fe26df8c450b85954504316d82927cf4d39b919b901cd1d00d13",
+  "reportRef": null,
+  "events": [
+    {
+      "eventId": "hook-aa14c2100088253afd7889d8071e5a5f",
+      "findingId": "mimosa-de00b0f33718d5fc406fcb89",
+      "type": "finding_blocked",
+      "at": "2026-10-26T17:27:49.557Z",
+      "identity": {
+        "projectRelativeFile": "docs/research/qubesos/audit_repos.py",
+        "ruleId": "security",
+        "codeEvidenceHash": "fcf8b89ffe1d620716615178748199f4136039daa452a12cbaa37b1adf85739f",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 93,
+      "endLine": 93,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "fcf8b89ffe1d620716615178748199f4136039daa452a12cbaa37b1adf85739f"
+      },
+      "sequence": 0
+    }
+  ],
+  "observedFindingIds": [],
+  "verifiedFiles": [],
+  "recordedAt": "2026-10-26T17:27:50.089Z"
+}

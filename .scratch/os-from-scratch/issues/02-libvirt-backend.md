@@ -44,6 +44,12 @@ TDD-style (red: `ImportError: cannot import name 'AGENT_VSOCK_PORT'`; green belo
   "needs python3-libvirt" error (no traceback); fake demo unaffected.
 - Code review (self): XML attribute quote-escaping fixed; `start/stop` assume Core's
   existence guard (same contract as FakeBackend).
+- Security (Mimosa L2, 2026-10-26): domain-XML parsing no longer uses any XML parser —
+  `_template_from_xml`/`_cid_from_xml` extract the two fields with bounded regexes
+  (stdlib ElementTree expands internal DTD entities = resource exhaustion; pip broken in
+  sandbox so defusedxml unavailable). Hostile mq- domain XML with DOCTYPE/ENTITY bomb is
+  inert (regression test `test_hostile_domain_xml_is_inert_not_parsed`). Upgrade to
+  defusedxml if we ever parse third-party XML (comment in `backends.py`).
 
 **Labelled shortcuts:** unit tests use a fake libvirt module — they prove XML/mapping/calls,
 not a boot. Disks are plain file copies (CoW = ticket 04). Fixed 1 vCPU/1 GiB. State by

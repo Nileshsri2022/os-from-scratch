@@ -6,6 +6,11 @@ classic candidates. Raw per-repo evidence: [`evidence/`](evidence/) (generator:
 [`collect_evidence.py`](collect_evidence.py)). Nothing was built or executed — static analysis
 only; each report states its depth and limitations.
 
+**Coverage re-audit (owner-requested, 2026-10-26):** live GitHub org re-pulled and diffed —
+215 = 215 repos, zero added/removed/changed, tier rules reproduce A95/B22/C71/D27, all 22
+Tier B targets have evidence + report coverage. Nothing was missed; full proof:
+[`docs/research/coverage-audit-qubesos-org.md`](../research/coverage-audit-qubesos-org.md).
+
 ## Method & the REA question (answered with evidence)
 REA's own routing (skill v49) says: *for a complete source repository, use normal repository
 tools; REA engines are for shipped binaries/runtime behavior.* Verified empirically here:

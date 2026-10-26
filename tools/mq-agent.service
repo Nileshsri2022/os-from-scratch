@@ -1,0 +1,9 @@
+[Unit]
+Description=MiniQubes guest agent (vsock)
+After=multi-user.target
+[Service]
+Environment=PYTHONPATH=/usr/local/lib
+ExecStart=/usr/bin/python3 -m guest.agent --vsock 27000
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target

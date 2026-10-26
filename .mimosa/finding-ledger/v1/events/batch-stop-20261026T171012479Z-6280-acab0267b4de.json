@@ -1,0 +1,95 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "stop-20261026T171012479Z-6280-acab0267b4de",
+  "runId": "20261026T171012479Z-6280-acab0267b4de",
+  "runStatus": "completed",
+  "coverage": {
+    "status": "complete",
+    "reasons": []
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "Stop"
+  },
+  "revision": null,
+  "diffHash": "b25fb0b3abd8d36f9736e2930bf2d5f4bbbed6d19c20c26db47836776e68a666",
+  "rulesVersion": "unavailable",
+  "sessionHash": "6bd35a9af6e4fe26df8c450b85954504316d82927cf4d39b919b901cd1d00d13",
+  "reportRef": ".mimosa/reports/task-review-session_d44473f1208b3a509020993aaf506d86-20261026T171012479Z-6280-acab0267b4de.json",
+  "events": [
+    {
+      "eventId": "hook-43f51733000200353e7d67a1d8a00b79",
+      "findingId": "mimosa-cf6012fac66a5da52ff5b072",
+      "type": "finding_observed",
+      "at": "2026-10-26T17:10:12.479Z",
+      "identity": {
+        "projectRelativeFile": "miniqubes/backends.py",
+        "ruleId": "security",
+        "codeEvidenceHash": "ff079c367396adbe5c9a101bc5c7e85149041f5b5d26bff1f03808c5cb12ab1c",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 206,
+      "endLine": 206,
+      "reasonCode": "observe",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "ff079c367396adbe5c9a101bc5c7e85149041f5b5d26bff1f03808c5cb12ab1c"
+      },
+      "sequence": 0
+    },
+    {
+      "eventId": "hook-d92c9669da85db081e65a89d0b26d9b1",
+      "findingId": "mimosa-cf6012fac66a5da52ff5b072",
+      "type": "finding_observed",
+      "at": "2026-10-26T17:10:12.479Z",
+      "identity": {
+        "projectRelativeFile": "miniqubes/backends.py",
+        "ruleId": "security",
+        "codeEvidenceHash": "ff079c367396adbe5c9a101bc5c7e85149041f5b5d26bff1f03808c5cb12ab1c",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 217,
+      "endLine": 217,
+      "reasonCode": "observe",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "ff079c367396adbe5c9a101bc5c7e85149041f5b5d26bff1f03808c5cb12ab1c"
+      },
+      "sequence": 1
+    }
+  ],
+  "observedFindingIds": [
+    "mimosa-cf6012fac66a5da52ff5b072"
+  ],
+  "verifiedFiles": [
+    {
+      "file": "miniqubes/cli.py",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "tests/test_libvirt_backend.py",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "miniqubes/backends.py",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "tools/make-template.sh",
+      "direct": "complete",
+      "projectContext": "partial"
+    }
+  ],
+  "recordedAt": "2026-10-26T17:10:13.016Z"
+}

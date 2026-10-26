@@ -120,6 +120,15 @@ class QubesCore:
         self._policy_check("host", service, name)
         return self._rpc(name, service, args)
 
+    def graphics_uri(self, name: str):
+        """Endpoint for `mq open` (ticket 07): the running qube's SPICE display."""
+        self._require_running(name)
+        uri = self.backend.graphics_uri(name)
+        if uri is None:
+            raise QubesError(f"no graphics endpoint for qube {name!r} "
+                             "(backend provides no display)")
+        return uri
+
     def filecopy(self, src: str, src_path: str, dst: str) -> dict:
         """Copy src_path from qube src into dst's ~/QubesIncoming/<src>/
         (ticket 06). Host-mediated chunked relay — upstream qrexec data also

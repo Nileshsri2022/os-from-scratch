@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "stop-20261026T175452281Z-20104-21b945dc28e6",
+  "runId": "20261026T175452281Z-20104-21b945dc28e6",
+  "runStatus": "completed",
+  "coverage": {
+    "status": "complete",
+    "reasons": []
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "Stop"
+  },
+  "revision": null,
+  "diffHash": "0cfc5ca070613713a932812a71f3ac96f318f74f852e4f2082d1b203cf1519b9",
+  "rulesVersion": "unavailable",
+  "sessionHash": "6bd35a9af6e4fe26df8c450b85954504316d82927cf4d39b919b901cd1d00d13",
+  "reportRef": ".mimosa/reports/task-review-session_d44473f1208b3a509020993aaf506d86-20261026T175452281Z-20104-21b945dc28e6.json",
+  "events": [],
+  "observedFindingIds": [],
+  "verifiedFiles": [
+    {
+      "file": "tests/test_libvirt_backend.py",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "tests/test_network.py",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "miniqubes/backends.py",
+      "direct": "complete",
+      "projectContext": "partial"
+    }
+  ],
+  "recordedAt": "2026-10-26T17:54:53.092Z"
+}

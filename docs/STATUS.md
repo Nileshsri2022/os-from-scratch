@@ -11,7 +11,7 @@ ticket with TDD + code-review), ponytail for coding, REA discipline for reverse-
 | 0 | Setup | Skills installed (`ask-matt`, `ponytail`); `AGENTS.md` workflow written | ✅ PR #1 |
 | 1 | Research (`/research`) | Popularity survey of OS-from-scratch projects; all **215 QubesOS repos** classified into 16 families + interactive graph; tier analysis found the **22 "main" (Tier B) repos** | ✅ PR #1 |
 | 2 | REA setup | `reverse-engineer-anything` skill installed; `rea-agents` CLI + `rea doctor` run (native engines absent in sandbox — expected) | ✅ PR #2 |
-| 3 | Reverse-engineering | 25 targets (22 Tier B + os-tutorial/xv6/blog_os): evidence + 17 reports + index in `docs/reverse-engineering/` | ✅ PR #2 |
+| 3 | Reverse-engineering | 25 targets (22 Tier B + os-tutorial/xv6/blog_os): evidence + 17 reports + index in `docs/reverse-engineering/` | ✅ PR #2 · **coverage re-audited 2026-10-26** (live org diff: 215=215, zero drift; all Tier B covered — [proof](research/coverage-audit-qubesos-org.md)) |
 | 4 | Grill-with-docs | `GLOSSARY.md` + ADR-0001 (Qubes-like on Linux+KVM), ADR-0002 (Python), ADR-0003 (Backend/fake-first) | ✅ PR #2 |
 | 5 | To-spec | `docs/spec.md` incl. milestones M1–M3 | ✅ |
 | 6 | To-tickets | 7 tracer-bullet tickets with blockers (`.scratch/os-from-scratch/issues/`) | ✅ |
@@ -19,7 +19,9 @@ ticket with TDD + code-review), ponytail for coding, REA discipline for reverse-
 | 8 | Implement ticket 03 | Guest agent + RPC channel (M1 "Brain") | ✅ done |
 | 9 | Implement ticket 06 | Policy engine + secure filecopy (36 tests total) | ✅ done |
 | 10 | Implement ticket 02 | LibvirtBackend — real KVM VMs | 🔶 **code done + 14 fake-libvirt unit tests (sandbox, 2026-10-26)**; real-VM verification still ⏳ **owner's machine** — guide: `docs/guides/02-libvirt-backend-guide.md` Steps 1–3 + 5–6 |
-| 11 | Implement tickets 04, 05, 07 | Template CoW clones → NAT networking → SPICE window | ⏳ blocked by 02 |
+| 11 | Implement ticket 04 | Template CoW clones (`qemu-img` backing files + `tools/make-template.sh` recipe) | 🔶 **sandbox slice done (2026-10-26)** — code + 53 tests green; golden image + isolation check on **owner's machine** |
+| 12 | Implement ticket 05 | Host NAT (`mq-net`) + qube↔qube isolation (`mq-isolate` nwfilter) | 🔶 **sandbox slice done (2026-10-26)** — XML files + backend attach + guard, 60 tests green; two-pings verify on **owner's machine** |
+| 13 | Implement ticket 07 | SPICE window per qube (`mq open` + `graphics_uri`) | 🔶 **sandbox slice done (2026-10-26)** — XML + backend/CLI wired, 68 tests green; window verify on **owner's machine** (guide Step 9) |
 
 ## Which upstream repo did we start with, and its status
 
@@ -35,7 +37,7 @@ meaning without it:
 | `qubes-core-qrexec` | `miniqubes/channel.py` + `miniqubes/policy.py` | ✅ v0 done (03, 06) |
 | `qubes-core-agent-linux` | `guest/agent.py` | ✅ v0 done (03, 06) |
 | `qubes-core-vchan-xen` / `-socket` | kernel TCP/vsock sockets | ✅ concept (nothing to write) |
-| `qubes-linux-template-builder` | `tools/make-template.sh` | ⏳ ticket 04 |
+| `qubes-linux-template-builder` | `tools/make-template.sh` | 🔶 script + CoW backend done (sandbox, ticket 04); golden image = owner run |
 | `qubes-core-qubesdb` | — | post-v1 (config-watch idea) |
 | `qubes-gui-daemon` / `-agent-linux` / `-common` | SPICE window shortcut | ⏳ ticket 07 (seamless GUI post-v1) |
 | `qubes-builderv2` | — (scripts instead) | not developing |
@@ -47,13 +49,15 @@ meaning without it:
 ## Milestones
 
 - **M1 "Brain" (stages 01+03)** — ✅ reached; stage 06 also done in simulation.
-- **M2 "Initial OS" (stages 01–04)** — waiting on 02 + 04 on the owner's KVM machine.
-- **M3 "Usable" (stages 01–07)** — after 05 + 07.
+- **M2 "Initial OS" (stages 01–04)** — all four stages' code now written (02 + 04 close
+  only on the owner's KVM machine: real boot + CoW isolation evidence).
+- **M3 "Usable" (stages 01–07)** — **all seven stages' sandbox slices now done** (05+07
+  added 2026-10-26); every remaining work item is owner-machine verification.
 
 ## Numbers
 
-Our OS code: **927 lines of Python** (`miniqubes/` 761 + `guest/` 166); tests 823 lines,
-**50 passing**. Upstream Tier B equivalent scope: ~366k LOC. The difference is reuse
+Our OS code: **1020 lines of Python** (`miniqubes/` 854 + `guest/` 166); tests 1046 lines,
+**68 passing**. Upstream Tier B equivalent scope: ~366k LOC. The difference is reuse
 (KVM/QEMU, libvirt, Linux, distro userland) plus ponytail scope discipline.
 
 ## Is this the correct flow? — honest deviations list
@@ -64,7 +68,9 @@ Yes, with three recorded deviations:
    "ok start" confirmed it. Any ADR can be superseded on request.
 2. **Ticket order 01 → 03 → 06** (02 skipped for now): valid per the blocker graph —
    03 and 06 do not depend on 02; 02 physically cannot run in this sandbox (no KVM),
-   so it is scheduled on the owner's machine.
+   so it is scheduled on the owner's machine. Ticket 04's sandbox slice (2026-10-26)
+   follows the same pattern: its CoW/guard logic needs no KVM to write and test —
+   only to close.
 3. **REA's binary engines (Ghidra/Hopper) were not run**: all targets are open-source, and
    REA's own routing prescribes evidence-backed source analysis for complete source repos.
    Binary-level REA remains available for shipped artifacts (e.g., a Qubes ISO) later.

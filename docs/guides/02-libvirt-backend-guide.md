@@ -6,6 +6,14 @@
 > yahan close ho hi nahi sakta. Har step ke baad "Expected" likha hai taaki aap
 > khud verify karke output bhej sako.
 
+> **Status update (2026-10-26, ticket 04 sandbox slice ke baad):** Step 4 ka code
+> pehle hi repo mein hai (tests ab **54** hain, 36 nahi) — owner ko sirf Steps
+> 1–3, 5–6 (+ Step 0/0.5/2) chalane hain. Aur Step 3+5 ka manual jugaad ab
+> ticket 04 ke `tools/make-template.sh` se replace ho sakta hai: wo ek hi baar
+> mein image + agent + identity-scrub karke sealed golden template deta hai
+> (upar wale Steps 3/5 ko background samjho). Naya runbook:
+> `docs/guides/02-libvirt-backend-guide.md` ke neeche ticket 04 wale phase.
+
 ## Step 0 — Kya already ready hai (kuch naya design nahi karna)
 
 | Cheez | Kahan | Status |
@@ -253,8 +261,12 @@ systemctl enable --now mq-agent
 ss -tlnp | grep -i vsock || journalctl -u mq-agent -n 20   # agent zinda hai?
 ```
 
-(Ticket 04 mein ye sab template banana ka hissa ban jayega — abhi haath se
-ek baar karna ticket 02 ke liye kaafi hai.)
+(Ticket 04 mein ye sab `tools/make-template.sh` automate karta hai. Ek zaroori
+correction upar wale manual unit mein: `agent.py` `from miniqubes.channel import …`
+karta hai, isliye flat copy kaafi nahi — packages ko `/usr/local/lib/miniqubes/`
++ `/usr/local/lib/guest/` mein daalo aur unit mein `Environment=PYTHONPATH=/usr/local/lib`
++ `ExecStart=/usr/bin/python3 -m guest.agent --vsock 27000` rakho. Ready-made file:
+`tools/mq-agent.service`.)
 
 ## Step 6 — Owner-machine verify checklist (yehi ticket ka asal exam hai)
 
@@ -288,6 +300,43 @@ same. Ye M2 ki taraf sabse bada saboot hoga.
 4. Code-review pass (apna hi code dusri nazar se) → phir commit + push.
 5. Tab — aur sirf tab — default backend `fake` → `libvirt` badalne ka faisla
    ADR addendum mein likho (ya env hi rakho; jo sach lage).
+
+## Step 8 — Networking verify (ticket 05 ke do pings)
+
+Setup README ke "Real backend (libvirt) — one-time network setup" section mein hai
+(`virsh nwfilter-define` + `net-define` + `net-autostart` — ek baar). `create` ab
+har qube ko `mq-net` par lagata hai aur `mq-isolate` filter lagata hai. Verify:
+
+```bash
+export MINIQUIBES_BACKEND=libvirt
+python3 -m miniqubes create personal --template noble
+python3 -m miniqubes create vault   --template noble
+python3 -m miniqubes start personal && python3 -m miniqubes start vault
+# andar se (serial/SSH ya jo rasta ho):
+ping -c2 1.1.1.1                    # Expected: ✅ chalta hai (host NAT)
+ping -c2 <vault-ka-IP>              # Expected: ❌ 100% packet loss (nwfilter drop)
+virsh nwfilter-list                 # Expected: mq-isolate dikhe
+```
+
+`vault` ka IP: `virsh domifaddr mq-vault`. Ping fail hone ka matlab hi isolation
+pass hai — dono outputs transcript mein save karo (ticket 05 ka Result).
+
+## Step 9 — GUI verify (ticket 07: SPICE window)
+
+`mq open` ke liye host par `remote-viewer` chahiye (`sudo apt install virt-viewer`;
+WSL2 par WSLg window khud khol dega). Domain XML mein SPICE already hai
+(loopback-only, autoport):
+
+```bash
+export MINIQUIBES_BACKEND=libvirt
+python3 -m miniqubes start personal          # VM chal rahi ho tabhi screen hoti hai
+python3 -m miniqubes open personal           # Expected: window khule, title "[personal]"
+# andar desktop dikh raha ho (console login) = ✅
+```
+
+Screenshot transcript mein save karo (ticket 07 ka Result). Window na khule to:
+`virsh dumpxml mq-personal | grep -A1 graphics` se port dekho, aur
+`remote-viewer spice://127.0.0.1:<port>` seedha chala ke dekho.
 
 ## Troubleshooting
 

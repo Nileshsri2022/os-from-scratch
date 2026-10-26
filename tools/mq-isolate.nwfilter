@@ -1,0 +1,17 @@
+<filter name='mq-isolate' chain='root'>
+  <!-- ticket 05: qubes must not reach each other — the only cross-qube path
+       is policy-checked RPC (miniqubes channel). Guest-to-guest traffic on one
+       bridge is L2, which the iptables FORWARD chain never sees, so the drop
+       lives in a nwfilter (ebtables attached at each qube's tap).
+
+       The drop covers exactly the qube IP range (the DHCP range of mq-net:
+       10.137.0.2-254), so the gateway 10.137.0.1 (DHCP/DNS via libvirt's
+       dnsmasq) and the internet (any dst outside the subnet, via NAT) stay
+       reachable. One-time setup: virsh nwfilter-define tools/mq-isolate.nwfilter -->
+  <rule action='drop' direction='inout' priority='200'>
+    <ip match='yes' dstipfrom='10.137.0.2' dstipto='10.137.0.254'/>
+  </rule>
+  <rule action='accept' direction='inout' priority='500'>
+    <all match='yes'/>
+  </rule>
+</filter>
