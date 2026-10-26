@@ -63,5 +63,6 @@ build system, and "what we would reuse vs. write ourselves". After the report, t
 │   └── reverse-engineering/  ← REA-style reports (permitted targets only)
 ├── .scratch/os-from-scratch/issues/   ← tickets, blockers-first
 ├── .agents/skills/           ← ask-matt, ponytail (installed via `npx skills add`)
-└── src/ (later)              ← bootloader, kernel, drivers — after tickets exist
+├── miniqubes/                ← the OS control plane (core, backends, cli)
+└── tests/                    ← stdlib unittest suite (must stay green)
 ```
