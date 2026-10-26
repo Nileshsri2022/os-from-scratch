@@ -1,0 +1,19 @@
+repo: qubes-gui-common
+url: https://github.com/QubesOS/qubes-gui-common
+head: 66b879e (shallow clone, 2026-10-26)
+license(first line): (no LICENSE file found)
+tracked files: 17 | total LOC (files<2MB): 765
+extensions by file count: (none)×11, .in×2, .h×2, .yml×1, .builder×1
+build markers: .qubesbuilder, Makefile.builder, debian, archlinux
+top-level entries: .gitlab-ci.yml, .qubesbuilder, Makefile.builder, archlinux, deb, debian, include, pkgs, rpm, rpm_spec, version
+largest files (lines path):
+     330 include/qubes-gui-protocol.h
+     183 debian/changelog
+      54 rpm_spec/gui-common.spec.in
+      43 include/qubes-xorg-tray-defs.h
+      42 debian/copyright
+      22 Makefile.builder
+      20 .qubesbuilder
+      18 archlinux/PKGBUILD.in
+README head:
+(none)

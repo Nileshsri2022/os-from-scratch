@@ -1,0 +1,30 @@
+repo: qubes-mgmt-salt-base
+url: https://github.com/QubesOS/qubes-mgmt-salt-base
+head: 1e7a340 (shallow clone, 2026-10-26)
+license(first line): Copyright (C) 2015 Jason Mehring <nrgaway@gmail.com>
+tracked files: 36 | total LOC (files<2MB): 2274
+extensions by file count: (none)×15, .py×15, .yml×1, .builder×1, .rst×1, .postinst×1, .conf×1, .in×1
+build markers: .qubesbuilder, Makefile, Makefile.builder, debian
+top-level entries: .gitignore, .gitlab-ci.yml, .pylintrc, .qubesbuilder, FORMULA, LICENSE, Makefile, Makefile.builder, README.rst, _grains, _modules, _pillar, _states, _utils, debian, etc, rpm_spec, version
+largest files (lines path):
+     478 _modules/module_utils.py
+     422 _utils/qubes_utils.py
+     269 .pylintrc
+     195 debian/changelog
+     147 _modules/debug.py
+      81 _modules/qubes.py
+      68 rpm_spec/qubes-mgmt-salt-base.spec.in
+      61 _pillar/qvm_prefs.py
+README head:
+==================
+Qubes Base Formula
+==================
+
+Custom base modules and states that are shared between dom0 and VM.
+
+
+Available states
+================
+
+.. contents::
+    :local:

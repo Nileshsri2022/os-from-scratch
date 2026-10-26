@@ -1,0 +1,30 @@
+repo: qubes-mgmt-salt-dom0-qvm
+url: https://github.com/QubesOS/qubes-mgmt-salt-dom0-qvm
+head: 763d186 (shallow clone, 2026-10-26)
+license(first line): Copyright (C) 2015 Jason Mehring <nrgaway@gmail.com>
+tracked files: 24 | total LOC (files<2MB): 4768
+extensions by file count: (none)×15, .py×2, .yml×1, .builder×1, .rst×1, .postinst×1, .in×1, .sls×1
+build markers: .qubesbuilder, Makefile, Makefile.builder
+top-level entries: .gitignore, .gitlab-ci.yml, .qubesbuilder, FORMULA, LICENSE, Makefile, Makefile.builder, README.rst, _modules, _states, debian.dom0, rpm_spec, tests, version
+largest files (lines path):
+    2422 _modules/ext_module_qvm.py
+     640 tests/tests-salt-call
+     522 README.rst
+     501 _states/ext_state_qvm.py
+     398 tests/init.sls
+      58 debian.dom0/qubes-mgmt-salt-dom0-qvm.postinst
+      55 rpm_spec/qubes-mgmt-salt-dom0-qvm-dom0.spec.in
+      23 Makefile
+README head:
+===========
+QVM Formula
+===========
+
+Salt can manage many Qubes settings via the qvm state module.
+
+Management declarations are typically rather simple:
+
+.. code-block:: yaml
+
+    appvm:
+      qvm.prefs

@@ -1,0 +1,30 @@
+repo: qubes-mgmt-salt-base-topd
+url: https://github.com/QubesOS/qubes-mgmt-salt-base-topd
+head: 2faac0e (shallow clone, 2026-10-26)
+license(first line): Copyright (C) 2015 Jason Mehring <nrgaway@gmail.com>
+tracked files: 31 | total LOC (files<2MB): 3246
+extensions by file count: (none)×14, .py×6, .sls×2, .top×2, .yml×1, .builder×1, .rst×1, .dirs×1
+build markers: .qubesbuilder, Makefile, Makefile.builder, debian
+top-level entries: .gitignore, .gitlab-ci.yml, .qubesbuilder, FORMULA, LICENSE, Makefile, Makefile.builder, README.rst, _modules, _utils, debian, pillar, rpm_spec, topd, version
+largest files (lines path):
+     772 _utils/toputils.py
+     700 _utils/pathutils.py
+     380 _utils/fileinfo.py
+     339 _modules/topd.py
+     281 _utils/matcher.py
+     215 _utils/pathinfo.py
+     172 debian/changelog
+      69 rpm_spec/qubes-mgmt-salt-base-topd.spec.in
+README head:
+===============
+topd formula
+===============
+
+Salt top module plugin that allows top drop-ins
+
+
+Available states
+================
+
+.. contents::
+    :local:

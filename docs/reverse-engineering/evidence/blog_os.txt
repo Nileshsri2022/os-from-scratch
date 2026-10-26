@@ -1,0 +1,30 @@
+repo: blog_os
+url: https://github.com/phil-opp/blog_os
+head: 8d1dc72 (shallow clone, 2026-10-26)
+license(first line): Apache License
+tracked files: 414 | total LOC (files<2MB): 138851
+extensions by file count: .md×196, .svg×77, .png×56, .html×44, (none)×8, .gif×7, .yml×4, .dia×3
+build markers: (none)
+top-level entries: .github, .gitignore, LICENSE-APACHE, LICENSE-MIT, README.md, blog, docker, giscus.json, scripts
+largest files (lines path):
+    3355 blog/static/fonts/iosevka-regular.woff
+    2366 blog/static/fonts/iosevka-regular.woff2
+    2121 blog/content/edition-2/posts/12-async-await/index.zh-TW.md
+    2050 blog/content/edition-2/extra/building-on-android/building-on-android.png
+    1835 blog/content/edition-2/posts/12-async-await/index.zh-CN.md
+    1832 blog/content/edition-2/posts/12-async-await/index.ja.md
+    1830 blog/content/edition-2/posts/12-async-await/index.ru.md
+    1827 blog/content/edition-2/posts/12-async-await/index.pt-BR.md
+README head:
+# Blog OS
+
+This repository contains the source code for the _Writing an OS in Rust_ series at [os.phil-opp.com](https://os.phil-opp.com).
+
+If you have questions, open an issue or chat with us [on Gitter](https://gitter.im/phil-opp/blog_os).
+
+## Where is the code?
+
+The code for each post lives in a separate git branch. This makes it possible to see the intermediate state after each post.
+
+**The code for the latest post is available [here][latest-post].**
+

@@ -43,6 +43,13 @@ how it works **with evidence** → state limitations. Report lands in
 build system, and "what we would reuse vs. write ourselves". After the report, the agent asks
 "develop using this?" and waits for a yes before any implementation borrows from it.
 
+REA status (2026-10-26): `reverse-engineer-anything` skill installed in `.agents/skills/`;
+the `rea-agents` CLI runs in the sandbox, but `rea doctor` reports **not ready for native
+binaries** (no Ghidra/Hopper/IDA here — those install on the owner's machine via
+`npx rea-agents setup`). REA's own guidance applies: for complete **source** repositories use
+normal repository analysis (our evidence-backed reports); reserve REA engines for shipped
+binaries/artifacts (installer ISOs, kernel ELFs) and runtime behavior.
+
 ## Verification
 
 - Code must build with `-Wall -Wextra` clean (or Rust equivalent) before a ticket closes.

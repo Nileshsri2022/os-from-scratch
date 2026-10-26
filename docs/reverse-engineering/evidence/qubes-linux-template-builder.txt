@@ -1,0 +1,30 @@
+repo: qubes-linux-template-builder
+url: https://github.com/QubesOS/qubes-linux-template-builder
+head: 44e9d8f (shallow clone, 2026-10-26)
+license(first line): (no LICENSE file found)
+tracked files: 61 | total LOC (files<2MB): 3725
+extensions by file count: (none)×24, .sh×20, .list×9, .yml×2, .builder×1, .buildlog×1, .conf×1, .spec×1
+build markers: Makefile, Makefile.builder, templates.spec
+top-level entries: .gitignore, .gitlab-ci.yml, Makefile, Makefile.builder, README, appmenus_generic, appvm.buildlog, build_template_rpm, builder_fix_filenames, builder_setup, cleanup_image, create_template_list.sh, functions-name.sh, functions.sh, mount_root.sh, prepare_image, prepared_images, qubeize_image, qubeized_images, rpm, rpmbuild, template_generic.conf, templates.spec, tests, umount-kill
+largest files (lines path):
+     674 tests/assert/COPYING
+     503 tests/template-flavors/test.sh
+     499 functions.sh
+     195 templates.spec
+     176 tests/assert/README.rst
+     166 qubeize_image
+     165 tests/assert/COPYING.LESSER
+     148 tests/assert/assert.sh
+README head:
+The Template Builder
+======================
+
+1) First, create a clean image of Fedora Linux install. You can use the fedoraize_image
+script for this:
+
+fedorize_image <image> <file-with-packets-lists>
+
+NOTE: The fedorize_image script can be also used to update an image -- it
+automatically assumes the update mode if the <image> already exists.
+
+2) Update symlinks in rpms_to_install/ using the create_symlinks_in_rpms_to_install_dir.sh script. The script

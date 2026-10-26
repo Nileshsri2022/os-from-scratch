@@ -1,0 +1,27 @@
+repo: qubes-core-admin-client
+url: https://github.com/QubesOS/qubes-core-admin-client
+head: 46ca6e5 (shallow clone, 2026-10-26)
+license(first line): GNU LESSER GENERAL PUBLIC LICENSE
+tracked files: 179 | total LOC (files<2MB): 55465
+extensions by file count: .py×106, .rst×38, (none)×18, .xml×4, .in×2, .desktop×2, .yml×1, .yaml×1
+build markers: .qubesbuilder, Makefile, Makefile.builder, pyproject.toml, debian, archlinux
+top-level entries: .gitignore, .gitlab-ci.yml, .pylintrc, .qubesbuilder, .readthedocs.yaml, Dockerfile.run_tests, LICENSE, Makefile, Makefile.builder, README.md, archlinux, ci, debian, doc, etc, pyproject.toml, qubesadmin, rpm_spec, run-tests, scripts, test-packages, version
+largest files (lines path):
+    6213 qubesadmin/tests/tools/qvm_template.py
+    2432 debian/changelog
+    2303 qubesadmin/tests/backup/backupcompatibility.py
+    2242 qubesadmin/backup/restore.py
+    1849 qubesadmin/tools/qvm_template.py
+    1604 qubesadmin/tests/tools/qvm_run.py
+    1527 qubesadmin/device_protocol.py
+    1325 qubesadmin/tests/mock_app.py
+README head:
+This is client side implementation of Qubes Admin API. See
+https://www.qubes-os.org/doc/admin-api/ for protocol specification.
+
+
+
+Compatibility
+=============
+
+This package requires Python >= 3.10

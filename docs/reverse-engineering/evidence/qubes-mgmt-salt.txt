@@ -1,0 +1,30 @@
+repo: qubes-mgmt-salt
+url: https://github.com/QubesOS/qubes-mgmt-salt
+head: 1aac5f4 (shallow clone, 2026-10-26)
+license(first line): (no LICENSE file found)
+tracked files: 70 | total LOC (files<2MB): 5337
+extensions by file count: (none)×29, .conf×6, .postinst×6, .py×5, .in×3, .sls×3, .sh×3, .rst×2
+build markers: .qubesbuilder, Makefile, Makefile.builder, setup.py, debian
+top-level entries: .gitignore, .gitlab-ci.yml, .pylintrc, .qubesbuilder, FORMULA, FORMULA-DEFAULTS, Makefile, Makefile.builder, Makefile.install, README.developer, README.rst, builder.conf, components.conf, debian, debian-quilt, doc, etc, python-override, qubes.SaltLinuxVM, qubesctl, qubessalt, rpm_spec, setup.cfg, setup.py, srv
+largest files (lines path):
+     588 etc/salt/minion.dist
+     488 debian/changelog
+     392 qubessalt/__init__.py
+     318 etc/salt/minion.d/f_defaults.conf
+     267 .pylintrc
+     254 Makefile.install
+     222 tests/local-repo-install
+     177 tests/local-repo-create
+README head:
+This README is not complete and is work-in-progress...
+======================================================
+
+In order to utilize the Qubes Management features (`qubes-mgmt`) two
+packages first need to be installed in either Dom0 and/or the AppVM.  Install
+`salt` version 2015.5.0 or greater, then for dom0 `qubes-salt-mgmt-dom0` or
+`qubes-mgmt-salt-vm` for an AppVM, or have them built into the template by
+including the `+salt` template flavor when building.
+
+`qubesctl` is inter-changeable and an alias for `salt-call --local` and
+contains additional code to apply any required patches.
+

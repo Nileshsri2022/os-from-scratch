@@ -1,0 +1,19 @@
+repo: qubes-core-qubesdb
+url: https://github.com/QubesOS/qubes-core-qubesdb
+head: e502478 (shallow clone, 2026-10-26)
+license(first line): (no LICENSE file found)
+tracked files: 79 | total LOC (files<2MB): 7031
+extensions by file count: (none)×27, .c×8, .install×6, .h×5, .in×4, .rc×4, .cmd×3, .vcxproj×3
+build markers: .qubesbuilder, Makefile, Makefile.builder, debian, archlinux
+top-level entries: .gitignore, .gitlab-ci.yml, .qubesbuilder, Makefile, Makefile.builder, archlinux, client, daemon, debian, debian-quilt, fuzz, include, patches.debian, python, rpm_spec, selinux, series-debian-vm.conf, version, windows
+largest files (lines path):
+    1063 daemon/db-daemon.c
+     879 daemon/db-cmds.c
+     818 client/qdb-client.c
+     632 debian/changelog
+     600 python/qubesdb.c
+     430 client/qubesdb-cmd.c
+     275 daemon/db-core.c
+     165 include/qubesdb-client.h
+README head:
+(none)

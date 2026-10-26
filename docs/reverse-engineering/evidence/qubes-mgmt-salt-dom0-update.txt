@@ -1,0 +1,30 @@
+repo: qubes-mgmt-salt-dom0-update
+url: https://github.com/QubesOS/qubes-mgmt-salt-dom0-update
+head: 4b50137 (shallow clone, 2026-10-26)
+license(first line): Copyright (C) 2015 Jason Mehring <nrgaway@gmail.com>
+tracked files: 27 | total LOC (files<2MB): 4111
+extensions by file count: (none)×16, .sls×3, .yml×1, .builder×1, .rst×1, .py×1, .postinst×1, .conf×1
+build markers: .qubesbuilder, Makefile, Makefile.builder
+top-level entries: .gitignore, .gitlab-ci.yml, .qubesbuilder, FORMULA, LICENSE, Makefile, Makefile.builder, README.rst, _modules, debian.dom0, etc, rpm_spec, tests, update, version
+largest files (lines path):
+    3664 _modules/qubes_dom0_update.py
+      71 update/qubes-vm.sls
+      58 rpm_spec/qubes-mgmt-salt-dom0-update-dom0.spec.in
+      57 debian.dom0/qubes-mgmt-salt-dom0-update.postinst
+      31 Makefile
+      28 tests/tests.sls
+      22 debian.dom0/copyright
+      21 update/qubes-dom0.sls
+README head:
+===============
+qubes-dom0-update Formuala
+===============
+
+Custom 'pkg' module that enables state files to install or update packages in dom0.
+
+
+Available states
+================
+
+.. contents::
+    :local:

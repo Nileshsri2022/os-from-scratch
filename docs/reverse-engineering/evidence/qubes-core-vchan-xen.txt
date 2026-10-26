@@ -1,0 +1,19 @@
+repo: qubes-core-vchan-xen
+url: https://github.com/QubesOS/qubes-core-vchan-xen
+head: 462339e (shallow clone, 2026-10-26)
+license(first line): (no LICENSE file found)
+tracked files: 56 | total LOC (files<2MB): 3144
+extensions by file count: (none)×21, .c×8, .h×4, .in×3, .cmd×3, .install×2, .vcxproj×2, .filters×2
+build markers: .qubesbuilder, Makefile, Makefile.builder, debian, archlinux
+top-level entries: .gitignore, .gitlab-ci.yml, .qubesbuilder, Makefile, Makefile.builder, archlinux, build-deps.list, debian, debian-quilt, pkgs, rpm_spec, series-debian-vm.conf, test, vchan, version, windows
+largest files (lines path):
+     454 debian/changelog
+     284 vchan/init.c
+     277 vchan/io.c
+     202 windows/src/vchan-test.c
+     188 windows/src/init.c
+     167 windows/src/io.c
+     157 test/node.c
+     133 test/node-select.c
+README head:
+(none)
