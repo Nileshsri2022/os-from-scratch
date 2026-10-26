@@ -21,6 +21,56 @@
 **kuch change nahi hona chahiye.** Agar change karna pade to wo design smell
 hai; wahi ruk ke sochna (ADR-0003 ka pura point yahi tha).
 
+## Step 0.5 — Agar owner ki machine Windows hai: WSL2 wala rasta (Linux bina dual-boot)
+
+KVM/libvirt sirf Linux par chalta hai. Owner ki machine Windows hai (confirmed
+2026-10-26), lekin Windows hatane ki zaroorat nahi: **WSL2** (Windows ke andar
+asli Linux kernel) + uski **nested virtualization** se Ubuntu ke andar
+`/dev/kvm` mil jata hai. Shartein: Windows 11 (Windows 10 par ye feature
+official nahi hai), aur BIOS/Task Manager mein Virtualization: Enabled.
+
+```powershell
+# 1) Check (PowerShell): Windows version + WSL pehle se hai?
+winver
+wsl --status
+
+# 2) Ubuntu install (Admin PowerShell), phir restart; pehli baar khulne par
+#    Ubuntu ek username/password banane ko kahega — yaad rakhna.
+wsl --install -d Ubuntu
+```
+
+```ini
+:: 3) Nested virtualization ON karo: Notepad se file banao
+::    C:\Users\<tumhara-naam>\.wslconfig   aur ye likho:
+[wsl2]
+nestedVirtualization=true
+```
+
+```bash
+# 4) systemd ON karo (libvirtd ko chahiye) — Ubuntu terminal mein:
+printf '[boot]\nsystemd=true\n' | sudo tee /etc/wsl.conf
+```
+
+```powershell
+:: 5) WSL band karke Ubuntu dobara kholo (PowerShell):
+wsl --shutdown
+```
+
+```bash
+# 6) Verify (Ubuntu terminal) — ye output hi go/no-go hai:
+ls -l /dev/kvm                       # file dikhi = KVM mil gaya 🎉
+egrep -c '(vmx|svm)' /proc/cpuinfo   # 0 se bada number
+```
+
+Dono pass hue to **Step 1 ke Ubuntu/Debian wale commands bilkul vaise ke vaise**
+chala sakte ho, is guide ke baaki steps same. `/dev/kvm` na mile to ruko:
+Task Manager → Performance → CPU mein "Virtualization: Enabled" check karo;
+Windows 10 hai to pehle Windows 11 upgrade ya dual-boot par baat karni hogi.
+
+Honest note: WSL2 mein VM chalegi lekin thodi slow — ticket 02 ki verification
+aur seekhne ke liye kaafi hai. M3 (daily-driver) ke samay asli Linux host
+(dual-boot/doosri machine) dobara sochenge; woh faisla abhi nahi.
+
 ## Step 1 — Owner machine par KVM + libvirt ready karo
 
 Pehle hardware virtualization check:

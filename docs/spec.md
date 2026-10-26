@@ -98,6 +98,9 @@ architecture end-to-end in simulation; M3 is when it feels like a daily-driver d
 Sandbox: Python 3.11, **no KVM/QEMU/libvirt** → tickets 01/03/06 logic is verified here via
 FakeBackend + loopback channel + unit tests. Tickets 02/04/05/07 close only with a run on the
 owner's machine (any Linux with KVM + libvirt + qemu) using each ticket's verify checklist.
+Owner's machine runs **Windows** (confirmed 2026-10-26) → those runs happen inside
+**WSL2 Ubuntu with nested virtualization** (see `docs/guides/02-libvirt-backend-guide.md`
+Step 0.5); a native-Linux host remains the better long-term home, decision deferred.
 
 ## Testing decisions (verification bar, every ticket)
 - Test **external behaviour at the highest seam**, not internals. There is deliberately one
