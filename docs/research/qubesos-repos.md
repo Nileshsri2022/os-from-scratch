@@ -1,6 +1,6 @@
 # QubesOS GitHub org — all 215 repos, and how they connect
 
-**Answer: exactly 215 public repositories** (GitHub API, 2026-10-26) — 170 original, 45 forks, 11 archived. Interactive graph: [qubesos/index.html](qubesos/index.html) (open it, or see the live preview). Data: [qubesos/repos.json](qubesos/repos.json) · regeneration: [qubesos/build_graph.py](qubesos/build_graph.py).
+**Answer: exactly 215 public repositories** (GitHub API, 2026-10-26) — 170 original, 45 forks, 11 archived. Interactive graph: [qubesos/index.html](qubesos/index.html). Which of the 215 actually matter if you want to build this OS: [qubesos-main-repos.md](qubesos-main-repos.md).
 
 ## The 215, by component family
 
@@ -23,8 +23,6 @@
 | Docs, website & community | 14 | [qubes-issues](https://github.com/QubesOS/qubes-issues), [qubes-doc](https://github.com/QubesOS/qubes-doc), [qubesos.github.io](https://github.com/QubesOS/qubesos.github.io) |
 | System packages & packaging forks | 22 | [qubes-gentoo](https://github.com/QubesOS/qubes-gentoo), [qubes-qubes-release](https://github.com/QubesOS/qubes-qubes-release), [qubes-release-configs](https://github.com/QubesOS/qubes-release-configs) |
 
-Families are derived from repo naming + role (Qubes builds the OS from named *components*); the full per-repo classification is in the graph data.
-
 ## Languages
 
 | Language | Repos |
@@ -46,7 +44,7 @@ Families are derived from repo naming + role (Qubes builds the OS from named *co
 | HTML | 1 |
 | SCSS | 1 |
 
-(61 "Makefile" repos are packaging components — they mostly contain build recipes that fetch and package upstream software, which is why GitHub reports no real language.)
+(61 "Makefile" repos are packaging components — build recipes that fetch and package upstream software.)
 
 ## Most-starred repos
 
@@ -67,46 +65,31 @@ Families are derived from repo naming + role (Qubes builds the OS from named *co
 
 ## The 45 forks — where they come from
 
-Fork parents by owner: `fepitre` ×19, `HW42` ×5, `marmarek` ×3, `kalkin` ×2, `jpouellet` ×2, `rust-vmm` ×2, `kdj0c` ×1, `kushaldas` ×1. Most are **maintainer working forks** (Qubes components are developed in a maintainer's fork, then mirrored into the org) — not random forks. The heavyweight true upstreams: **xen ← xen-project/xen** (the hypervisor itself), **rust-vmm / rust-vmm-xen ← rust-vmm org**, **qubes-template-kicksecure ← Kicksecure**, **qubes-system76-firmware ← pop-os**.
+Fork parents by owner: `fepitre` ×19, `HW42` ×5, `marmarek` ×3, `kalkin` ×2, `jpouellet` ×2, `rust-vmm` ×2, `kdj0c` ×1, `kushaldas` ×1. Most are **maintainer working forks** mirrored into the org. Heavyweight true upstreams: **xen ← xen-project/xen**, **rust-vmm ← rust-vmm org**, **qubes-template-kicksecure ← Kicksecure**.
 
 ## How the 215 actually connect
 
-**1. Build-time: one builder, ~200 components.** Qubes OS is not one codebase — it is assembled
-from components, and nearly every repo here is one component (or a packaging recipe for one).
-[qubes-builderv2](https://github.com/QubesOS/qubes-builderv2) builds them all into RPM/deb
-packages in dependency order; the `build-logs*`, `updates-status*` and
-[qubes-continuous-integration](https://github.com/QubesOS/qubes-continuous-integration) repos are
-the CI paper trail. In the graph these are the dotted "builder builds-all" links.
+**1. Build-time: one builder, ~200 components.** [qubes-builderv2](https://github.com/QubesOS/qubes-builderv2)
+builds every component repo into packages/ISO (dotted "builder builds-all" links in the graph).
 
-**2. Runtime: dom0 at the center.** On an installed system the hub is
-[qubes-core-admin](https://github.com/QubesOS/qubes-core-admin) (`qubesd`, running in dom0 on top
-of Xen — [qubes-vmm-xen](https://github.com/QubesOS/qubes-vmm-xen) / [xen](https://github.com/QubesOS/xen)).
-Everything talks to it through the Admin API ([qubes-core-admin-client](https://github.com/QubesOS/qubes-core-admin-client);
-[qubes-manager](https://github.com/QubesOS/qubes-manager) is the GUI on top). VMs talk to each
-other and to dom0 over **qrexec** ([qubes-core-qrexec](https://github.com/QubesOS/qubes-core-qrexec)),
-with the in-VM half living in [qubes-core-agent-linux](https://github.com/QubesOS/qubes-core-agent-linux)
-(and its Windows counterpart). Windows on screen are fake-local: the **GUI protocol** pipes each
-VM's windows to dom0 — [qubes-gui-daemon](https://github.com/QubesOS/qubes-gui-daemon) (dom0) ↔
-[qubes-gui-agent-linux](https://github.com/QubesOS/qubes-gui-agent-linux) (VM). These are the
-white "runtime links" in the graph.
+**2. Runtime: dom0 at the center.** [qubes-core-admin](https://github.com/QubesOS/qubes-core-admin) (`qubesd`, dom0)
+manages Xen VMs; tools reach it via the Admin API ([qubes-core-admin-client](https://github.com/QubesOS/qubes-core-admin-client)).
+VMs talk over **qrexec** ([qubes-core-qrexec](https://github.com/QubesOS/qubes-core-qrexec) ↔
+[qubes-core-agent-linux](https://github.com/QubesOS/qubes-core-agent-linux) in each VM) on top of **vchan**
+transport; **QubesDB** carries configuration. VM windows appear as local windows via the GUI protocol
+([qubes-gui-daemon](https://github.com/QubesOS/qubes-gui-daemon) ↔ [qubes-gui-agent-linux](https://github.com/QubesOS/qubes-gui-agent-linux)).
 
-**3. Templates & management.** AppVMs are clones of template roots built from `qubes-template-*`
-(Fedora/Debian/Kicksecure…) on top of [qubes-linux-kernel](https://github.com/QubesOS/qubes-linux-kernel);
-their configuration is pushed by Salt — the `qubes-mgmt-salt-*` formulas.
+**3. Templates & management.** AppVMs are copy-on-write clones of template roots (`qubes-template-*`,
+built by qubes-linux-template-builder); Salt formulas (`qubes-mgmt-salt-*`) configure them.
 
-**4. Lineage.** The dashed purple links are GitHub fork parentage (§ above): how code
-*entered* the org.
+**4. Lineage.** Dashed purple links = GitHub fork parentage: how code entered the org.
 
-### Graph edge legend (what a line means — and doesn't)
-
+### Graph edge legend
 | Edge | Meaning | Source |
 |---|---|---|
-| colored thin | repo belongs to that component family (hub = family) | naming + role classification |
-| purple dashed | GitHub fork-of (→ org repo or external upstream) | GitHub API (`parent`) |
-| white solid | documented runtime relationship | Qubes architecture, curated (7 links) |
+| colored thin | repo → its component family hub | naming + role |
+| purple dashed | GitHub fork-of | GitHub API |
+| white solid | documented runtime relationship | curated (7) |
 | gray dotted | builderv2 builds this family | Qubes build system |
 
-**Honest limit:** family links show *architectural grouping*, not code-level imports. A true
-build-dependency graph (component A BuildRequires component B) would need parsing every
-component's `.qubesbuilder`/spec files — 215 clones. Doable as a follow-up if you want it,
-but not claimed here.
+**Honest limit:** family links are architectural grouping, not code-level dependencies.

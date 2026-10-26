@@ -1,40 +1,35 @@
 #!/usr/bin/env python3
-"""Build an interactive connection graph of all QubesOS org repos.
+"""Build an interactive connection graph of all QubesOS org repos + tier analysis.
 
-Inputs : repos.json (GitHub API list), parents.tsv (fork -> parent full_name)
-Outputs: index.html (single-file interactive canvas graph), ../qubesos-repos.md
-Edge semantics are explicit in both outputs: family membership (architectural
-grouping), fork lineage (GitHub truth), curated runtime links (documented
-Qubes architecture), builder links (builderv2 builds every family).
+Inputs : repos.json (GitHub API list), parents.tsv (fork -> parent), sizes.tsv
+Outputs: index.html (interactive graph), ../qubesos-repos.md, ../qubesos-main-repos.md
+Tiers  : B = the invention (develop your equivalent) · A = reuse upstream
+         C = real products, deferrable · D = meta (docs/CI logs/community)
+Edge semantics are explicit in the outputs.
 """
-import json, colorsys, html, collections, pathlib
+import json, colorsys, collections, pathlib
 
 HERE = pathlib.Path(__file__).parent
 repos = json.load(open(HERE / "repos.json"))
 parents = {}
 for line in open(HERE / "parents.tsv"):
     if "\t" in line:
-        k, v = line.rstrip("\n").split("\t")
-        parents[k] = v
+        k, v = line.rstrip("\n").split("\t"); parents[k] = v
+sizekb = {}
+for line in open(HERE / "sizes.tsv"):
+    n, s = line.rstrip("\n").split("\t"); sizekb[n] = int(s)
+for r in repos: r["kb"] = sizekb.get(r["name"], 0)
 
 # ---------- families (ordered: first match wins) ----------
-FAMILIES = [  # key, label
-    ("core", "Core system (dom0, qrexec, VM agents)"),
-    ("gui", "GUI virtualization"),
-    ("vmm", "Hypervisor / Xen / VMM"),
-    ("linux", "Linux kernel & support"),
-    ("templates", "VM templates"),
-    ("desktop", "Desktop, X11 & audio"),
-    ("apps", "Applications"),
-    ("windows", "Windows support"),
-    ("python", "Python libraries"),
-    ("mgmt", "Management (Salt / Ansible)"),
-    ("builder", "Builder, CI, testing & infra"),
-    ("installer", "Installer & boot"),
-    ("firmware", "Firmware & hardware"),
-    ("security", "Security components"),
-    ("docs", "Docs, website & community"),
-    ("packages", "System packages & packaging forks"),
+FAMILIES = [
+    ("core", "Core system (dom0, qrexec, VM agents)"), ("gui", "GUI virtualization"),
+    ("vmm", "Hypervisor / Xen / VMM"), ("linux", "Linux kernel & support"),
+    ("templates", "VM templates"), ("desktop", "Desktop, X11 & audio"),
+    ("apps", "Applications"), ("windows", "Windows support"),
+    ("python", "Python libraries"), ("mgmt", "Management (Salt / Ansible)"),
+    ("builder", "Builder, CI, testing & infra"), ("installer", "Installer & boot"),
+    ("firmware", "Firmware & hardware"), ("security", "Security components"),
+    ("docs", "Docs, website & community"), ("packages", "System packages & packaging forks"),
 ]
 EXACT = {}
 def put(fam, *names):
@@ -59,7 +54,7 @@ put("desktop", "qubes-xfce4-screensaver","qubes-xfdesktop","qubes-xscreensaver",
 put("gui", "qubes-virtgpu-host")
 put("vmm", "xen","xen-vhost-frontend","rust-vmm","rust-vmm-xen")
 put("python", "old-qubes-python-u2flib-host")
-PREFIX = [  # checked after EXACT
+PREFIX = [
     ("qubes-core-", "core"), ("qubes-gui-", "gui"), ("qubes-vmm-", "vmm"),
     ("qubes-linux-", "linux"), ("qubes-template-", "templates"),
     ("qubes-desktop-", "desktop"), ("qubes-xorg-", "desktop"), ("qubes-alsa-", "desktop"),
@@ -75,21 +70,34 @@ def family(name):
         if name.startswith(pre): return fam
     return "packages"
 
-fam_keys = [k for k, _ in FAMILIES]
-fam_label = dict(FAMILIES)
-color = {}
-for i, k in enumerate(fam_keys):
-    r, g, b = colorsys.hsv_to_rgb(i / len(fam_keys), 0.62, 0.92)
-    color[k] = "#%02x%02x%02x" % (int(r*255), int(g*255), int(b*255))
+# ---------- tiers: do you need to develop it? ----------
+TIER_B = {"qubes-core-admin","qubes-core-admin-client","qubes-core-admin-linux",
+  "qubes-core-qrexec","qubes-core-qubesdb","qubes-core-vchan-xen","qubes-core-vchan-socket",
+  "qubes-core-agent-linux","qubes-gui-daemon","qubes-gui-agent-linux","qubes-gui-common",
+  "qubes-builderv2","qubes-installer-qubes-os","qubes-linux-template-builder"}
+EXTRA_A = {"qubes-linux-kernel","qubes-grub2","qubes-vmm-xen","qubes-lorax","qubes-blivet"}
+def tier(r):
+    n = r["name"]
+    if n in TIER_B or n.startswith("qubes-mgmt-"): return "B"
+    if family(n) == "docs" or n.startswith(("build-logs","build-commands","build-issues","updates-status")) \
+       or n in {"openqa-tests-qubesos","tests-hw-setup","qubes-continuous-integration"}: return "D"
+    if r["fork"] or r["language"] in (None, "Makefile") or n in EXTRA_A: return "A"
+    return "C"
+for r in repos: r["tier"] = tier(r)
 
-# ---------- nodes ----------
-nodes, edges = [], []
-names = {r["name"] for r in repos}
+fam_keys = [k for k, _ in FAMILIES]; fam_label = dict(FAMILIES); color = {}
+for i, k in enumerate(fam_keys):
+    rr, gg, bb = colorsys.hsv_to_rgb(i / len(fam_keys), 0.62, 0.92)
+    color[k] = "#%02x%02x%02x" % (int(rr*255), int(gg*255), int(bb*255))
+
+# ---------- nodes / edges ----------
+nodes, edges = [], []; names = {r["name"] for r in repos}
 for k in fam_keys:
     nodes.append({"id": "hub:" + k, "label": fam_label[k], "type": "hub", "family": k})
 for r in repos:
     f = family(r["name"])
     nodes.append({"id": r["name"], "label": r["name"], "type": "repo", "family": f,
+                  "tier": r["tier"], "kb": r["kb"],
                   "desc": (r["description"] or "").strip(), "lang": r["language"] or "—",
                   "stars": r["stars"], "fork": r["fork"], "archived": r["archived"],
                   "url": r["url"], "updated": r["updated"][:10]})
@@ -107,8 +115,6 @@ for r in repos:
             nodes.append({"id": "ext:" + p, "label": p, "type": "external", "family": "external",
                           "url": "https://github.com/" + p})
         edges.append({"s": r["name"], "t": "ext:" + p, "kind": "fork", "label": "forked from " + p})
-
-# ---------- curated runtime links (documented Qubes architecture) ----------
 CURATED = [
     ("qubes-core-admin", "qubes-core-qrexec", "qubesd controls VMs; qrexec is the inter-VM RPC fabric"),
     ("qubes-core-qrexec", "qubes-core-agent-linux", "qrexec services run inside Linux VMs"),
@@ -121,18 +127,19 @@ CURATED = [
 for a, b, lab in CURATED:
     if a in names and b in names:
         edges.append({"s": a, "t": b, "kind": "runtime", "label": lab})
-# builder links: builderv2 builds components of every family
 for k in fam_keys:
     edges.append({"s": "qubes-builderv2", "t": "hub:" + k, "kind": "builder"})
 
 fam_counts = collections.Counter(n["family"] for n in nodes if n["type"] == "repo")
+tier_counts = collections.Counter(r["tier"] for r in repos)
 data = {"nodes": nodes, "edges": edges,
         "families": [{"key": k, "label": fam_label[k], "color": color[k], "n": fam_counts[k]} for k in fam_keys],
         "stats": {"total": len(repos), "originals": sum(not r["fork"] for r in repos),
                   "forks": sum(r["fork"] for r in repos), "archived": sum(r["archived"] for r in repos),
-                  "external": len(ext_seen)}}
+                  "external": len(ext_seen), "tierB": tier_counts["B"]}}
 print("nodes:", len(nodes), "edges:", len(edges))
-print({k: fam_counts[k] for k in fam_keys})
+print("families:", {k: fam_counts[k] for k in fam_keys})
+print("tiers:", dict(tier_counts), "sum:", sum(tier_counts.values()))
 
 # ---------- index.html ----------
 HTML = r'''<!doctype html><html lang="en"><head><meta charset="utf-8">
@@ -162,6 +169,7 @@ a{color:#58a6ff}
 <div class="sub"><span id="st-line"></span> · Node size ≈ ⭐ · white ring = fork · faded = archived · ◆ = component family · ▦ gray = upstream outside the org · click a repo to open it on GitHub</div>
 <div id="controls">
 <input id="q" type="search" placeholder="Search repos… (Enter = jump to first match)">
+<label><input type="checkbox" id="opt-main"> ⭐ main repos only (Tier B)</label>
 <label><input type="checkbox" id="e-family" checked> family links</label>
 <label><input type="checkbox" id="e-fork" checked> fork lineage</label>
 <label><input type="checkbox" id="e-runtime" checked> runtime links</label>
@@ -172,7 +180,7 @@ a{color:#58a6ff}
 <button id="reset">Reset view</button>
 </div></header>
 <canvas id="cv"></canvas><div id="legend"></div><div id="tip"></div>
-<div id="hint">drag = pan · wheel = zoom · drag a node to pin it · data: GitHub API, 2026-10-26</div>
+<div id="hint">drag = pan · wheel = zoom · drag a node to pin it · Tier B = the main repos (the invention) · data: GitHub API, 2026-10-26</div>
 <script>const DATA=__DATA__;</script>
 <script>
 const cv=document.getElementById('cv'),ctx=cv.getContext('2d'),tip=document.getElementById('tip');
@@ -190,6 +198,7 @@ let view={x:0,y:0,k:0.85},hover=null,dragN=null,pan=null,focusFam=null,query='';
 const show={family:1,fork:1,runtime:1,builder:1};
 function nodeVisible(n){
  if(n.type==='repo'&&n.archived&&!document.getElementById('opt-arch').checked)return false;
+ if(n.type==='repo'&&document.getElementById('opt-main').checked&&n.tier!=='B')return false;
  if(n.type==='external'&&!document.getElementById('opt-ext').checked)return false;
  if(focusFam&&n.type!=='external'&&n.family!==focusFam)return false;
  return true;}
@@ -224,7 +233,8 @@ function draw(){
   const col=famColor[n.family]||'#8b949e'; ctx.globalAlpha=(n.archived?.38:1);
   if(n.type==='hub'){ ctx.save();ctx.translate(x,y);ctx.rotate(Math.PI/4);ctx.fillStyle=col;ctx.strokeStyle='#fff';ctx.lineWidth=1.6;const s=n.r*view.k*.8+5;ctx.fillRect(-s/2,-s/2,s,s);ctx.strokeRect(-s/2,-s/2,s,s);ctx.restore();}
   else if(n.type==='external'){ ctx.fillStyle='#6e7681';const s=n.r*view.k+4;ctx.fillRect(x-s/2,y-s/2,s,s);}
-  else { ctx.beginPath();ctx.arc(x,y,n.r*view.k*.9+1.5,0,7);ctx.fillStyle=col;ctx.fill(); if(n.fork){ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=1.2;ctx.stroke();} }
+  else { ctx.beginPath();ctx.arc(x,y,n.r*view.k*.9+1.5,0,7);ctx.fillStyle=col;ctx.fill(); if(n.fork){ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=1.2;ctx.stroke();}
+   if(n.tier==='B'){ctx.beginPath();ctx.arc(x,y,n.r*view.k*.9+4.5,0,7);ctx.strokeStyle='#f9e2af';ctx.lineWidth=1.3;ctx.stroke();} }
   if(query&&n.label.toLowerCase().includes(query)){ctx.beginPath();ctx.arc(x,y,(n.r*view.k)+7,0,7);ctx.strokeStyle='#f9e2af';ctx.lineWidth=2;ctx.stroke();}
   if(n===hover){ctx.beginPath();ctx.arc(x,y,(n.r*view.k)+5,0,7);ctx.strokeStyle='#fff';ctx.lineWidth=1.6;ctx.stroke();}
   ctx.globalAlpha=1;
@@ -240,20 +250,19 @@ cv.addEventListener('mousemove',ev=>{ const mx=ev.clientX,my=ev.clientY;
  if(dragN){dragN.x=(mx-W/2-view.x)/view.k;dragN.y=(my-H/2-view.y)/view.k;dragN.vx=dragN.vy=0;alpha=Math.max(alpha,.35);return;}
  hover=pick(mx,my); cv.style.cursor=hover?'pointer':'grab';
  if(hover){ let h='<b>'+esc(hover.label)+'</b>';
-  if(hover.type==='repo')h+='<br><span class="muted">'+esc(famLabel[hover.family])+'</span>'+(hover.desc?'<br>'+esc(hover.desc):'')+'<br><span class="muted">⭐ '+hover.stars+' · '+esc(hover.lang)+(hover.fork?' · fork':'')+(hover.archived?' · ARCHIVED':'')+' · updated '+hover.updated+'</span>';
+  if(hover.type==='repo')h+='<br><span class="muted">'+esc(famLabel[hover.family])+'</span>'+(hover.desc?'<br>'+esc(hover.desc):'')+'<br><span class="muted">⭐ '+hover.stars+' · '+esc(hover.lang)+(hover.fork?' · fork':'')+(hover.archived?' · ARCHIVED':'')+' · updated '+hover.updated+'</span><br><span class="muted">Tier '+hover.tier+(hover.tier==='B'?' ⭐ MAIN — the invention':hover.tier==='A'?' — reuse upstream':hover.tier==='C'?' — product, deferrable':' — meta')+' · '+(hover.kb>=1024?(hover.kb/1024).toFixed(1)+' MB':hover.kb+' KB')+'</span>';
   else if(hover.type==='hub')h+='<br><span class="muted">component family — click legend name to isolate</span>';
   else h+='<br><span class="muted">upstream repo outside QubesOS org</span>';
   tip.innerHTML=h;tip.style.display='block';tip.style.left=Math.min(W-360,mx+14)+'px';tip.style.top=(my+14)+'px';
  } else tip.style.display='none';});
-cv.addEventListener('mousedown',ev=>{ const n=pick(ev.clientX,ev.clientY); if(n){dragN=n;dragN.moved=false;} else pan=[ev.clientX,ev.clientY]; });
-addEventListener('mouseup',ev=>{ if(dragN&&!dragN.moved&&dragN.url){ if(Math.hypot(ev.clientX-(dragN.sx||0),ev.clientY-(dragN.sy||0))>=0) window.open(dragN.url,'_blank'); } dragN=null;pan=null;});
-cv.addEventListener('mousedown',ev=>{ if(dragN){dragN.sx=ev.clientX;dragN.sy=ev.clientY;} });
+cv.addEventListener('mousedown',ev=>{ const n=pick(ev.clientX,ev.clientY); if(n){dragN=n;dragN.moved=false;dragN.sx=ev.clientX;dragN.sy=ev.clientY;} else pan=[ev.clientX,ev.clientY]; });
+addEventListener('mouseup',()=>{ if(dragN&&!dragN.moved&&dragN.url){ window.open(dragN.url,'_blank'); } dragN=null;pan=null;});
 cv.addEventListener('mousemove',ev=>{ if(dragN&&(Math.abs(ev.clientX-dragN.sx)>4||Math.abs(ev.clientY-dragN.sy)>4))dragN.moved=true; });
 cv.addEventListener('wheel',ev=>{ ev.preventDefault(); const f=ev.deltaY<0?1.12:.89; view.k=Math.max(.18,Math.min(4,view.k*f)); },{passive:false});
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 ['family','fork','runtime','builder'].forEach(k=>document.getElementById('e-'+k).addEventListener('change',e=>{show[k]=e.target.checked?1:0;alpha=.7;}));
-['opt-arch','opt-ext','opt-labels'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{alpha=.7;}));
-document.getElementById('reset').onclick=()=>{view={x:0,y:0,k:.85};focusFam=null;query='';document.getElementById('q').value='';markLegend();alpha=.8;};
+['opt-arch','opt-ext','opt-labels','opt-main'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{alpha=.7;}));
+document.getElementById('reset').onclick=()=>{view={x:0,y:0,k:.85};focusFam=null;query='';document.getElementById('q').value='';document.getElementById('opt-main').checked=false;markLegend();alpha=.8;};
 const q=document.getElementById('q');
 q.addEventListener('input',()=>{query=q.value.trim().toLowerCase();});
 q.addEventListener('keydown',e=>{ if(e.key!=='Enter')return; const m=[...N.values()].find(n=>n.type==='repo'&&n.label.toLowerCase().includes(query)&&nodeVisible(n)); if(m){view.x=-m.x*view.k;view.y=-m.y*view.k;hover=m;} });
@@ -262,84 +271,146 @@ function markLegend(){ lg.innerHTML='<div style="cursor:default" class="muted">C
  lg.querySelectorAll('[data-f]').forEach(d=>d.onclick=()=>{focusFam=focusFam===d.dataset.f?null:d.dataset.f;markLegend();alpha=.8;});}
 markLegend();
 document.getElementById('st-total').textContent=DATA.stats.total;
-document.getElementById('st-line').textContent=DATA.stats.originals+' original · '+DATA.stats.forks+' forks (of '+DATA.stats.external+' upstreams) · '+DATA.stats.archived+' archived · '+DATA.families.length+' component families';
+document.getElementById('st-line').textContent=DATA.stats.originals+' original · '+DATA.stats.forks+' forks (of '+DATA.stats.external+' upstreams) · '+DATA.stats.archived+' archived · '+DATA.families.length+' component families · ⭐ '+DATA.stats.tierB+' main repos (Tier B — gold ring)';
 </script></body></html>'''
 (HERE / "index.html").write_text(HTML.replace("__DATA__", json.dumps(data)))
 
-# ---------- summary markdown ----------
+# ---------- helpers for docs ----------
+def link(n): return "[%s](https://github.com/QubesOS/%s)" % (n, n)
+def mb(kb): return "%.1f MB" % (kb/1024) if kb >= 1024 else "%d KB" % kb
+by_name = {r["name"]: r for r in repos}
+
+# ---------- qubesos-repos.md (unchanged survey) ----------
 lang = collections.Counter(r["language"] or "(none — mostly packaging/meta)" for r in repos)
 owners = collections.Counter(p.split("/")[0] for p in parents.values())
 top = sorted(repos, key=lambda r: -r["stars"])[:12]
 by_fam = {k: sorted([r for r in repos if family(r["name"]) == k], key=lambda r: -r["stars"]) for k in fam_keys}
-def link(n): return "[%s](https://github.com/QubesOS/%s)" % (n, n)
 md = []
 md.append("# QubesOS GitHub org — all 215 repos, and how they connect\n")
 md.append("**Answer: exactly 215 public repositories** (GitHub API, 2026-10-26) — "
           "%d original, %d forks, %d archived. Interactive graph: "
-          "[qubesos/index.html](qubesos/index.html) (open it, or see the live preview). "
-          "Data: [qubesos/repos.json](qubesos/repos.json) · regeneration: "
-          "[qubesos/build_graph.py](qubesos/build_graph.py).\n" % (data["stats"]["originals"], data["stats"]["forks"], data["stats"]["archived"]))
+          "[qubesos/index.html](qubesos/index.html). Which of the 215 actually matter if you "
+          "want to build this OS: [qubesos-main-repos.md](qubesos-main-repos.md).\n"
+          % (data["stats"]["originals"], data["stats"]["forks"], data["stats"]["archived"]))
 md.append("## The 215, by component family\n")
 md.append("| Family | Repos | Flagships (by ⭐) |\n|---|---:|---|")
 for k in fam_keys:
-    flags = ", ".join(link(r["name"]) for r in by_fam[k][:3])
-    md.append("| %s | %d | %s |" % (fam_label[k], fam_counts[k], flags))
-md.append("\nFamilies are derived from repo naming + role (Qubes builds the OS from named "
-          "*components*); the full per-repo classification is in the graph data.\n")
-md.append("## Languages\n\n| Language | Repos |\n|---|---:|")
+    md.append("| %s | %d | %s |" % (fam_label[k], fam_counts[k], ", ".join(link(r["name"]) for r in by_fam[k][:3])))
+md.append("\n## Languages\n\n| Language | Repos |\n|---|---:|")
 for k, v in lang.most_common(): md.append("| %s | %d |" % (k, v))
-md.append("\n(61 \"Makefile\" repos are packaging components — they mostly contain build recipes "
-          "that fetch and package upstream software, which is why GitHub reports no real language.)\n")
+md.append("\n(61 \"Makefile\" repos are packaging components — build recipes that fetch and package upstream software.)\n")
 md.append("## Most-starred repos\n\n| ⭐ | Repo |\n|---:|---|")
 for r in top: md.append("| %d | %s |" % (r["stars"], link(r["name"])))
 md.append("\n## The 45 forks — where they come from\n")
 md.append("Fork parents by owner: " + ", ".join("`%s` ×%d" % (o, c) for o, c in owners.most_common(8)) + ". "
-          "Most are **maintainer working forks** (Qubes components are developed in a maintainer's fork, "
-          "then mirrored into the org) — not random forks. The heavyweight true upstreams: "
-          "**xen ← xen-project/xen** (the hypervisor itself), **rust-vmm / rust-vmm-xen ← rust-vmm org**, "
-          "**qubes-template-kicksecure ← Kicksecure**, **qubes-system76-firmware ← pop-os**.\n")
+          "Most are **maintainer working forks** mirrored into the org. Heavyweight true upstreams: "
+          "**xen ← xen-project/xen**, **rust-vmm ← rust-vmm org**, **qubes-template-kicksecure ← Kicksecure**.\n")
 md.append("""## How the 215 actually connect
 
-**1. Build-time: one builder, ~200 components.** Qubes OS is not one codebase — it is assembled
-from components, and nearly every repo here is one component (or a packaging recipe for one).
-[qubes-builderv2](https://github.com/QubesOS/qubes-builderv2) builds them all into RPM/deb
-packages in dependency order; the `build-logs*`, `updates-status*` and
-[qubes-continuous-integration](https://github.com/QubesOS/qubes-continuous-integration) repos are
-the CI paper trail. In the graph these are the dotted "builder builds-all" links.
+**1. Build-time: one builder, ~200 components.** [qubes-builderv2](https://github.com/QubesOS/qubes-builderv2)
+builds every component repo into packages/ISO (dotted "builder builds-all" links in the graph).
 
-**2. Runtime: dom0 at the center.** On an installed system the hub is
-[qubes-core-admin](https://github.com/QubesOS/qubes-core-admin) (`qubesd`, running in dom0 on top
-of Xen — [qubes-vmm-xen](https://github.com/QubesOS/qubes-vmm-xen) / [xen](https://github.com/QubesOS/xen)).
-Everything talks to it through the Admin API ([qubes-core-admin-client](https://github.com/QubesOS/qubes-core-admin-client);
-[qubes-manager](https://github.com/QubesOS/qubes-manager) is the GUI on top). VMs talk to each
-other and to dom0 over **qrexec** ([qubes-core-qrexec](https://github.com/QubesOS/qubes-core-qrexec)),
-with the in-VM half living in [qubes-core-agent-linux](https://github.com/QubesOS/qubes-core-agent-linux)
-(and its Windows counterpart). Windows on screen are fake-local: the **GUI protocol** pipes each
-VM's windows to dom0 — [qubes-gui-daemon](https://github.com/QubesOS/qubes-gui-daemon) (dom0) ↔
-[qubes-gui-agent-linux](https://github.com/QubesOS/qubes-gui-agent-linux) (VM). These are the
-white "runtime links" in the graph.
+**2. Runtime: dom0 at the center.** [qubes-core-admin](https://github.com/QubesOS/qubes-core-admin) (`qubesd`, dom0)
+manages Xen VMs; tools reach it via the Admin API ([qubes-core-admin-client](https://github.com/QubesOS/qubes-core-admin-client)).
+VMs talk over **qrexec** ([qubes-core-qrexec](https://github.com/QubesOS/qubes-core-qrexec) ↔
+[qubes-core-agent-linux](https://github.com/QubesOS/qubes-core-agent-linux) in each VM) on top of **vchan**
+transport; **QubesDB** carries configuration. VM windows appear as local windows via the GUI protocol
+([qubes-gui-daemon](https://github.com/QubesOS/qubes-gui-daemon) ↔ [qubes-gui-agent-linux](https://github.com/QubesOS/qubes-gui-agent-linux)).
 
-**3. Templates & management.** AppVMs are clones of template roots built from `qubes-template-*`
-(Fedora/Debian/Kicksecure…) on top of [qubes-linux-kernel](https://github.com/QubesOS/qubes-linux-kernel);
-their configuration is pushed by Salt — the `qubes-mgmt-salt-*` formulas.
+**3. Templates & management.** AppVMs are copy-on-write clones of template roots (`qubes-template-*`,
+built by qubes-linux-template-builder); Salt formulas (`qubes-mgmt-salt-*`) configure them.
 
-**4. Lineage.** The dashed purple links are GitHub fork parentage (§ above): how code
-*entered* the org.
+**4. Lineage.** Dashed purple links = GitHub fork parentage: how code entered the org.
 
-### Graph edge legend (what a line means — and doesn't)
-
+### Graph edge legend
 | Edge | Meaning | Source |
 |---|---|---|
-| colored thin | repo belongs to that component family (hub = family) | naming + role classification |
-| purple dashed | GitHub fork-of (→ org repo or external upstream) | GitHub API (`parent`) |
-| white solid | documented runtime relationship | Qubes architecture, curated (7 links) |
+| colored thin | repo → its component family hub | naming + role |
+| purple dashed | GitHub fork-of | GitHub API |
+| white solid | documented runtime relationship | curated (7) |
 | gray dotted | builderv2 builds this family | Qubes build system |
 
-**Honest limit:** family links show *architectural grouping*, not code-level imports. A true
-build-dependency graph (component A BuildRequires component B) would need parsing every
-component's `.qubesbuilder`/spec files — 215 clones. Doable as a follow-up if you want it,
-but not claimed here.
+**Honest limit:** family links are architectural grouping, not code-level dependencies.
 """)
 (HERE.parent / "qubesos-repos.md").write_text("\n".join(md))
-print("wrote index.html + ../qubesos-repos.md")
-print("packages leftovers:", ", ".join(r["name"] for r in by_fam["packages"]))
+
+# ---------- qubesos-main-repos.md ----------
+ROLES = {
+ "qubes-core-admin": "**qubesd — the brain.** VM lifecycle, storage pools, firewall rules, backup/restore, device assignment, events. Python (asyncio), runs in dom0.",
+ "qubes-core-admin-client": "Admin API client — every CLI tool (`qvm-*`) and the GUI manager talk to qubesd through this.",
+ "qubes-core-admin-linux": "dom0 Linux-side pieces: storage driver glue, helper services.",
+ "qubes-core-qrexec": "**qrexec — the RPC fabric.** Secure inter-VM calls + the policy engine deciding who may call what.",
+ "qubes-core-qubesdb": "**QubesDB** — tiny key/value config database shared dom0↔VM (with watches).",
+ "qubes-core-vchan-xen": "vchan transport over Xen — reliable byte streams between domains; qrexec/GUI/QubesDB ride on it.",
+ "qubes-core-vchan-socket": "Same vchan API over Unix sockets (testing / non-Xen setups).",
+ "qubes-core-agent-linux": "**The in-VM agent.** qrexec services, networking setup, updates proxy, file copy, time sync — everything a Linux AppVM needs.",
+ "qubes-gui-daemon": "**GUI protocol, dom0 side** — renders each VM window as a (fake) local window with colored borders.",
+ "qubes-gui-agent-linux": "**GUI protocol, VM side** (X11 agent feeding windows to the daemon).",
+ "qubes-gui-common": "Shared GUI protocol definitions used by both sides.",
+ "qubes-builderv2": "The assembly line: builds every component into packages and the installer ISO.",
+ "qubes-installer-qubes-os": "Installer definition (Anaconda config + kickstarts). Configuration, not new code.",
+ "qubes-linux-template-builder": "Builds template root filesystems; AppVMs are copy-on-write clones of these.",
+}
+b_repos = sorted([r for r in repos if r["tier"] == "B"], key=lambda r: -r["kb"])
+mgmt_n = sum(1 for r in b_repos if r["name"].startswith("qubes-mgmt-"))
+a_top = sorted([r for r in repos if r["tier"] == "A"], key=lambda r: -r["kb"])[:8]
+c_top = sorted([r for r in repos if r["tier"] == "C"], key=lambda r: -r["kb"])[:8]
+d_top = sorted([r for r in repos if r["tier"] == "D"], key=lambda r: -r["kb"])[:6]
+mmd = []
+mmd.append("# Building a Qubes-style OS: do you need all 215 repos?\n")
+mmd.append("**No.** Of the 215 QubesOS repos, only **%d are the actual invention** (Tier B below) — "
+           "and even the Qubes team did not write the rest from scratch: the hypervisor is Xen, the "
+           "kernel is Linux, the userland is Fedora/Debian. Qubes = a small set of core components "
+           "+ reuse + packaging glue. Data: GitHub API 2026-10-26 (sizes are repo sizes incl. history — a proxy, not LOC).\n"
+           % tier_counts["B"])
+mmd.append("| Tier | Meaning | Repos |\n|---|---|---:|")
+mmd.append("| **B — MAIN: the invention** (develop your equivalent) | qubesd, qrexec, QubesDB, vchan, in-VM agent, GUI protocol, builder/installer/template glue, Salt config | %d |" % tier_counts["B"])
+mmd.append("| **A — reuse upstream** (develop nothing) | forks/mirrors + packaging recipes for Xen, Linux kernel, libvirt, GRUB, X11, dnf stack, Python libs… | %d |" % tier_counts["A"])
+mmd.append("| **C — real products, deferrable** | Qubes Manager GUI, desktop integrations, Windows tools, convenience apps | %d |" % tier_counts["C"])
+mmd.append("| **D — meta** | docs, website, issue tracker, CI build logs (yes, ~3.3 GB of logs), artwork, HCL | %d |" % tier_counts["D"])
+mmd.append("\nIn the [interactive graph](qubesos/index.html) tick **“⭐ main repos only (Tier B)”** — Tier B repos carry a gold ring.\n")
+mmd.append("## ⭐ The main repos (Tier B) — this is the list you asked for\n")
+mmd.append("| Repo | Size | Lang | Role |\n|---|---:|---|---|")
+for r in b_repos:
+    if r["name"].startswith("qubes-mgmt-"): continue
+    mmd.append("| %s | %s | %s | %s |" % (link(r["name"]), mb(r["kb"]), r["language"] or "—", ROLES.get(r["name"], (r["description"] or "").strip())))
+mmd.append("| `qubes-mgmt-salt-*` (%d repos) | small | Salt/YAML | Configuration-as-code: formulas that create & configure the default qubes (sys-net, sys-firewall, vault…). A v1 needs a minimal subset. |" % mgmt_n)
+mmd.append("\nEvidence for \"the rest is not invented here\": **86 repos are Makefile/no-language** (pure packaging recipes), "
+           "**100 repos are under 200 KB**, **45 are forks** of someone else's code.\n")
+mmd.append("### Tier A examples — reuse, never develop\n| Repo | Size | What it really is |\n|---|---:|---|")
+for r in a_top:
+    note = {"xen": "fork of xen-project/xen — the hypervisor", "qubes-linux-kernel": "upstream Linux kernel + Qubes config/patches",
+            "qubes-linux-dom0-updates": "package metadata hosting", "rust-vmm": "fork of rust-vmm crates"}.get(r["name"], "upstream software, packaged")
+    mmd.append("| %s | %s | %s |" % (link(r["name"]), mb(r["kb"]), note))
+mmd.append("\n### Tier C examples — real, but a v1 skips them\n")
+mmd.append(", ".join(link(r["name"]) for r in c_top) + " …\n")
+mmd.append("### Tier D examples — meta weight\n")
+mmd.append(", ".join("%s (%s)" % (link(r["name"]), mb(r["kb"])) for r in d_top) + "\n")
+mmd.append("""## So what does "build this OS from scratch" mean in practice?
+
+### Path 1 — Compile the real Qubes OS from source (develop: 0 repos)
+Clone [qubes-builderv2](https://github.com/QubesOS/qubes-builderv2), write a `builder.yml`
+selecting components (≈ the whole org), build packages → template → ISO. You develop nothing;
+the learning is the build system. Needs a beefy machine (hours, lots of disk/RAM) — not runnable
+in this sandbox.
+
+### Path 2 — Build your own Qubes-like OS (develop: equivalents of ~6 ideas)
+Ponytail-minimal v1 mapping — reuse everything Tier A, write only:
+
+| Qubes piece | Your v1 equivalent | Shortcut (upgrade when…) |
+|---|---|---|
+| Xen + Linux kernel + distro | **Reuse**: KVM/QEMU + a Linux distro | shortcut: KVM instead of Xen — simpler dev loop; revisit if you need Xen's driver domains |
+| qubes-core-admin (qubesd) | Small Python admin daemon over **libvirt**: create/start/stop/clone VMs, attach disks | — |
+| qrexec + vchan + QubesDB (4 repos) | **One** agent channel over **virtio-vsock**: simple RPC + config push | shortcut: merged protocol, permissive policy; split when you need granular inter-VM policy |
+| qubes-core-agent-linux | Small guest agent: RPC server, file copy, IP/time setup | — |
+| qubes-gui-daemon/agent | **Skip the protocol** — SPICE/VNC window per VM | shortcut: no seamless colored-border windows; that's the hardest part, deliberately last |
+| template-builder + storage | One golden qcow2; AppVMs = qemu-img **backing-file clones** (free CoW) | — |
+| builderv2 + installer + Salt | Shell scripts + a setup doc | shortcut: no ISO builder until the OS itself works |
+
+That's **3 things to actually write** (admin daemon, guest agent, thin CLI) versus 215 repos.
+Honest scale note: upstream Tier B is ~45 MB of repos built by a team over 15 years; a
+learning-grade equivalent with the shortcuts above is a few thousand lines — the architecture
+(compartmentalize everything, treat VMs as untrusted, one small trusted core) is the real lesson.
+""")
+(HERE.parent / "qubesos-main-repos.md").write_text("\n".join(mmd))
+print("wrote index.html + ../qubesos-repos.md + ../qubesos-main-repos.md")
