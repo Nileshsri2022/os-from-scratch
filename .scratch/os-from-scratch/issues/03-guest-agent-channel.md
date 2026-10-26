@@ -1,6 +1,6 @@
 # 03 — Guest agent + channel v0 (ping / info RPC)
 
-Blocked by: 01 (logic), 02 (real-guest end-to-end) · Status: **doing**
+Blocked by: 01 (logic), 02 (real-guest end-to-end) · Status: **done** (2026-10-26; vsock item carried to 02)
 RE folded in: [qubes-core-qrexec](../../../docs/reverse-engineering/qubes-core-qrexec.md),
 [qubes-core-vchan-xen](../../../docs/reverse-engineering/qubes-core-vchan-xen.md) — delta from RE index #4.
 
@@ -29,10 +29,10 @@ surface (parse defensively: capped frames, JSON only); one service = one handler
   Policy check is **ticket 06** (marked seam in code).
 
 ## Steps (TDD: red → green)
-- [ ] Tests first: frame round-trip; oversized frame rejected; invalid JSON rejected;
+- [x] Tests first: frame round-trip; oversized frame rejected; invalid JSON rejected;
       server survives random garbage then still answers `ping`; unknown service error
-- [ ] `channel.py` + `guest/agent.py` + `Core.call` + CLI `call` command
-- [ ] Full suite green (old 9 + new); loopback demo transcript → Result
+- [x] `channel.py` + `guest/agent.py` + `Core.call` + CLI `call` command
+- [x] Full suite green (old 9 + new); loopback demo transcript → Result
 - [ ] (with 02) real guest over vsock — carried as verify item into ticket 02
 
 ## Verify
