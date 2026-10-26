@@ -13,6 +13,9 @@ read-only while AppQubes run; private-vs-root volumes (v1: single CoW disk; pers
 ## Design
 - `tools/make-template.sh`: documented recipe (debootstrap/cloud image + agent from ticket 03
   + cloud-init off) → `templates/<name>.qcow2`. Manual but reproducible; automation later.
+  **Identity scrub before sealing** (RE: qubes-linux-template-builder `cleanup_image`):
+  remove `/etc/machine-id`, SSH host keys, shell histories, and logs — clones must not share
+  one identity, or the compartments stop being distinguishable on the network.
 - LibvirtBackend.create: `qemu-img create -f qcow2 -b <template> -F qcow2 <qube>.qcow2`.
 - Guard: starting a qube whose template file is missing → clear QubesError.
 
