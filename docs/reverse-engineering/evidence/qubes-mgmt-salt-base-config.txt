@@ -1,0 +1,30 @@
+repo: qubes-mgmt-salt-base-config
+url: https://github.com/QubesOS/qubes-mgmt-salt-base-config
+head: 24f6108 (shallow clone, 2026-10-26)
+license(first line): Copyright (C) 2015 Jason Mehring <nrgaway@gmail.com>
+tracked files: 27 | total LOC (files<2MB): 720
+extensions by file count: (none)×14, .sls×5, .top×2, .yml×1, .builder×1, .rst×1, .postinst×1, .jinja×1
+build markers: .qubesbuilder, Makefile, Makefile.builder, debian
+top-level entries: .gitignore, .gitlab-ci.yml, .qubesbuilder, FORMULA, LICENSE, Makefile, Makefile.builder, README.rst, debian, pillar, qubes, rpm_spec, version
+largest files (lines path):
+     113 qubes/user-dirs.sls
+     102 debian/changelog
+      84 qubes/directories.sls
+      59 rpm_spec/qubes-mgmt-salt-base-config.spec.in
+      51 debian/qubes-mgmt-salt-base-config.postinst
+      49 README.rst
+      29 FORMULA
+      27 debian/control
+README head:
+====================
+qubes-config-forumla
+====================
+
+Qubes+Salt Management base configuration for SaltStack's Salt Infrastructure
+automation and management system
+
+Available States
+================
+
+.. contents::
+    :local:

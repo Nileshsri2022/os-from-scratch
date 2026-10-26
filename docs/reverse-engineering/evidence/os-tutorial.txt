@@ -1,0 +1,30 @@
+repo: os-tutorial
+url: https://github.com/cfenollosa/os-tutorial
+head: 8002382 (shallow clone, 2026-10-26)
+license(first line): BSD 3-Clause License
+tracked files: 238 | total LOC (files<2MB): 11054
+extensions by file count: .asm×71, .c×60, .h×57, .md×26, (none)×24
+build markers: (none)
+top-level entries: .gitignore, 00-environment, 01-bootsector-barebones, 02-bootsector-print, 03-bootsector-memory, 04-bootsector-stack, 05-bootsector-functions-strings, 06-bootsector-segmentation, 07-bootsector-disk, 08-32bit-print, 09-32bit-gdt, 10-32bit-enter, 11-kernel-crosscompiler, 12-kernel-c, 13-kernel-barebones, 14-checkpoint, 15-video-ports, 16-video-driver, 17-video-scroll, 18-interrupts, 19-interrupts-irqs, 20-interrupts-timer, 21-shell, 22-malloc, 23-fixes
+largest files (lines path):
+     425 22-malloc/cpu/interrupt.asm
+     425 21-shell/cpu/interrupt.asm
+     425 20-interrupts-timer/cpu/interrupt.asm
+     425 19-interrupts-irqs/cpu/interrupt.asm
+     380 23-fixes/cpu/interrupt.asm
+     289 18-interrupts/cpu/interrupt.asm
+     211 20-interrupts-timer/drivers/keyboard.c
+     153 23-fixes/cpu/isr.c
+README head:
+os-tutorial
+===========
+
+_⚠️ Hey! This is an old, abandoned project, with both technical and design issues [listed here](https://github.com/cfenollosa/os-tutorial/issues/269). Please have fun with this tutorial but do look for more modern and authoritative sources if you want to learn about OS design. ⚠️_
+
+How to create an OS from scratch!
+
+I have always wanted to learn how to make an OS from scratch. In college I was taught
+how to implement advanced features (pagination, semaphores, memory management, etc)
+but:
+
+- I never got to start from my own boot sector

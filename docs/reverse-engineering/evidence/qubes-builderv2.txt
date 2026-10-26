@@ -1,0 +1,30 @@
+repo: qubes-builderv2
+url: https://github.com/QubesOS/qubes-builderv2
+head: a323e80 (shallow clone, 2026-10-26)
+license(first line): (no LICENSE file found)
+tracked files: 351 | total LOC (files<2MB): 51619
+extensions by file count: (none)×82, .py×79, .yml×30, .asc×30, .cfg×20, .ps1×14, .sh×11, .gpg×10
+build markers: pyproject.toml, qubesbuilder/plugins/template/template.spec
+top-level entries: .dockerignore, .gitignore, .gitlab-ci.yml, .gitmodules, README.md, ansible, ci, dependencies-debian.txt, dependencies-fedora-qubes-executor.txt, dependencies-fedora.txt, dockerfiles, example-configs, keys, mypy.ini, pyproject.toml, qb, qubesbuilder, qubesbuilder-cli, rpc, run-tests.sh, tests, tools
+largest files (lines path):
+    3661 tests/test_cli.py
+    1689 README.md
+    1575 tests/test_windows.py
+    1232 tests/test_objects.py
+    1103 qubesbuilder/plugins/template/__init__.py
+     853 qubesbuilder/plugins/installer/__init__.py
+     837 qubesbuilder/plugins/__init__.py
+     728 qubesbuilder/config.py
+README head:
+# Qubes OS Builder
+
+This is the second generation of the Qubes OS builder. This new builder
+leverages container or disposable qube isolation to perform every stage of the
+build and release process. From fetching sources to building them, everything
+is executed inside a "cage" (either a disposable or a container) with the
+help of what we call an "executor." For every command that needs to perform an
+action on sources, like cloning and verifying Git repos, rendering a SPEC
+file, generating SRPM or Debian source packages, a new cage is used. Only the
+signing, publishing, and uploading processes are executed locally outside a
+cage. (This will be improved in the future.) For now, only Docker, Podman,
+Local, Qubes and Windows executors are available.

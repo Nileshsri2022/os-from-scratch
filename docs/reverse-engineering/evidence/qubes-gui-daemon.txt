@@ -1,0 +1,19 @@
+repo: qubes-gui-daemon
+url: https://github.com/QubesOS/qubes-gui-daemon
+head: 629410a (shallow clone, 2026-10-26)
+license(first line): GNU GENERAL PUBLIC LICENSE
+tracked files: 74 | total LOC (files<2MB): 12269
+extensions by file count: (none)×26, .h×12, .c×11, .in×3, .install×3, .policy×3, .py×3, .desktop×2
+build markers: .qubesbuilder, Makefile, Makefile.builder, setup.py, debian, archlinux
+top-level entries: .gitignore, .gitlab-ci.yml, .qubesbuilder, LICENSE, Makefile, Makefile.builder, archlinux, common, debian, gui-common, gui-daemon, include, pulse, qubesguidaemon, rpm, rpm_spec, screen-layout-handler, selinux, setup.py, shmoverride, version, window-icon-updater
+largest files (lines path):
+    5075 gui-daemon/xside.c
+    1402 pulse/pacat-simple-vchan.c
+     676 debian/changelog
+     625 pulse/config.h
+     620 shmoverride/shmoverride.c
+     422 window-icon-updater/icon-receiver
+     356 gui-daemon/xside.h
+     339 LICENSE
+README head:
+(none)

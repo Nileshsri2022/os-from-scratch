@@ -1,0 +1,30 @@
+repo: qubes-core-vchan-socket
+url: https://github.com/QubesOS/qubes-core-vchan-socket
+head: e1da6da (shallow clone, 2026-10-26)
+license(first line): (no LICENSE file found)
+tracked files: 37 | total LOC (files<2MB): 2962
+extensions by file count: .c×12, (none)×9, .h×6, .in×3, .py×3, .yml×1, .builder×1, .md×1
+build markers: Makefile, Makefile.builder
+top-level entries: .gitignore, .travis.yml, Makefile, Makefile.builder, README.md, ci, pkgs, rpm_spec, run-tests, tests, vchan, vchan-simple, version
+largest files (lines path):
+     281 vchan/socket.c
+     269 vchan-simple/io.c
+     200 vchan/init.c
+     181 vchan/io.c
+     173 tests/test_vchan.py
+     169 tests/vchan.py
+     157 vchan/node.c
+     157 vchan-simple/node.c
+README head:
+# libvchan-socket
+
+This is a socket implementation of `libvchan`, analogous to the Xen one
+(https://github.com/QubesOS/qubes-core-vchan-xen/).
+
+## Compiling
+
+    make all
+    sudo make install
+
+## Usage
+

@@ -1,0 +1,19 @@
+repo: qubes-installer-qubes-os
+url: https://github.com/QubesOS/qubes-installer-qubes-os
+head: df83732 (shallow clone, 2026-10-26)
+license(first line): (no LICENSE file found)
+tracked files: 53 | total LOC (files<2MB): 3507
+extensions by file count: (none)×27, .ks×10, .patch×3, .list×2, .conf×2, .spec×2, .sh×2, .yml×1
+build markers: Makefile, Makefile.builder, live/qubes-live.spec, livecd-tools/livecd-tools.spec
+top-level entries: .cvsignore, .gitignore, .gitlab-ci.yml, .gitmodules, Makefile, Makefile.builder, build-deps-iso.list, build-deps.list, conf, live, livecd-tools, meta-packages, qubes-release, rpm, rpm_verify, scripts, yum
+largest files (lines path):
+     807 livecd-tools/livecd-tools.spec
+     483 live/default-appmenus-fedora
+     446 scripts/livecd-creator-qubes
+     205 Makefile
+     191 live/livesys
+     171 scripts/tmplparser
+     139 conf/liveusb.ks
+     131 live/default-appmenus-debian
+README head:
+(none)

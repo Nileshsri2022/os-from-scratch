@@ -1,0 +1,25 @@
+repo: qubes-core-qrexec
+url: https://github.com/QubesOS/qubes-core-qrexec
+head: e35f59e (shallow clone, 2026-10-26)
+license(first line): (no LICENSE file found)
+tracked files: 195 | total LOC (files<2MB): 38715
+extensions by file count: .py×45, (none)×34, .c×24, .vim×16, .rst×14, .h×10, .install×6, .in×5
+build markers: .qubesbuilder, Makefile, Makefile.builder, setup.py, debian, archlinux
+top-level entries: .coveragerc, .gitignore, .gitlab-ci.yml, .pylintrc, .qubesbuilder, .readthedocs.yaml, Makefile, Makefile.builder, README.md, agent, archlinux, ci, daemon, debian, doc, fuzz, lib, libqrexec, mypy.ini, policy-agent-extra, policy.d, qrexec, qubes-rpc-base, qubes-rpc-config, qubes-rpc-dom0
+largest files (lines path):
+    2866 qrexec/tests/policy/parser.py
+    2425 doc/_static/general.png
+    2395 qrexec/policy/parser.py
+    1925 qrexec/tests/socket/agent.py
+    1814 daemon/qrexec-daemon.c
+    1492 doc/_static/particular.png
+    1485 qrexec/tests/socket/daemon.py
+    1175 debian/changelog
+README head:
+The code in this repository implements **qrexec**, the Qubes OS Remote Procedure Call (RPC) protocol.
+
+For more information on qrexec, see these pages in the Qubes documentation:
+
+- [Qrexec: secure communication across domains](https://www.qubes-os.org/doc/qrexec/)
+- [Qubes RPC internals](https://www.qubes-os.org/doc/qrexec-internals/)
+- [qubes-core-qrexec's documentation](https://dev.qubes-os.org/projects/qubes-core-qrexec/en/stable/) 

@@ -1,0 +1,24 @@
+repo: qubes-core-admin-linux
+url: https://github.com/QubesOS/qubes-core-admin-linux
+head: 7cd5292 (shallow clone, 2026-10-26)
+license(first line): (no LICENSE file found)
+tracked files: 117 | total LOC (files<2MB): 9391
+extensions by file count: .py×42, (none)×23, .conf×9, .sh×7, .rules×5, .rst×3, .service×3, .preset×3
+build markers: .qubesbuilder, Makefile, Makefile.builder, setup.py
+top-level entries: .gitignore, .gitlab-ci.yml, .pylintrc, .qubesbuilder, Makefile, Makefile.builder, README.txt, ci, cpu-microcode-info, doc, dom0-updates, dracut, file-copy-vm, pm-utils, qubes-rpc, qubes-rpc-policy, rpm_spec, run-tests.sh, setup.py, system-config, uki-generate, vaio-fixes, version, vmupdate
+largest files (lines path):
+     795 vmupdate/tests/test_vmupdate.py
+     593 vmupdate/update_manager.py
+     556 dom0-updates/qubes-dom0-update
+     547 vmupdate/vmupdate.py
+     369 vmupdate/agent/source/dnf/dnf5_api.py
+     363 vmupdate/qube_connection.py
+     354 rpm_spec/core-dom0-linux.spec.in
+     340 vmupdate/tests/conftest.py
+README head:
+This package contains Linux dom0 files.
+
+Mostly there are config files for different system services, but also some
+"addons" to Qubes core:
+ - udev scripts for block and USB devices exposure (in qvm-block and qvm-usb)
+ - appmenu generation for Linux GUI (including icons)

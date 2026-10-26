@@ -1,0 +1,27 @@
+repo: qubes-core-admin
+url: https://github.com/QubesOS/qubes-core-admin
+head: 488d2ad (shallow clone, 2026-10-26)
+license(first line): GNU LESSER GENERAL PUBLIC LICENSE
+tracked files: 289 | total LOC (files<2MB): 130907
+extensions by file count: .py×138, (none)×45, .rst×26, .policy×23, .service×6, .xml×5, .0×5, .conf×3
+build markers: .qubesbuilder, Makefile, Makefile.builder, setup.py
+top-level entries: .gitignore, .gitlab-ci.yml, .pylintrc, .qubesbuilder, .readthedocs.yaml, LICENSE, Makefile, Makefile.builder, README.md, ci, contrib, doc, etc, linux, qubes, qubes-rpc, qubes-rpc-policy, qvm-tools, relaxng, rpm_spec, run-tests, setup.cfg, setup.py, templates, test-packages
+largest files (lines path):
+   27806 tests-data/dispvm_perf/nv56-mem32.json
+   11918 tests-data/dispvm_perf/nv54-mem16.json
+    5548 qubes/tests/api_admin.py
+    3491 qubes/tests/vm/qubesvm.py
+    3343 qubes/vm/qubesvm.py
+    2974 qubes/tests/ext.py
+    2855 qubes/storage/zfs.py
+    2712 qubes/api/admin.py
+README head:
+Qubes core, version 3
+---------------------
+
+[![Build Status](https://travis-ci.org/QubesOS/qubes-core-admin.svg?branch=master)](https://travis-ci.org/QubesOS/qubes-core-admin)
+<img src="https://readthedocs.org/projects/qubes-core-admin/badge/?version=latest">
+
+This is master branch of the Qubes OS core.
+
+API documentation is available: https://dev.qubes-os.org/projects/core-admin/en/latest/.

@@ -1,0 +1,19 @@
+repo: qubes-gui-agent-linux
+url: https://github.com/QubesOS/qubes-gui-agent-linux
+head: b67894b (shallow clone, 2026-10-26)
+license(first line): GNU GENERAL PUBLIC LICENSE
+tracked files: 3628 | total LOC (files<2MB): 320250
+extensions by file count: .h×3467, (none)×48, .sh×17, .c×13, .install×11, .conf×10, .orc×10, .desktop×6
+build markers: .qubesbuilder, Makefile, Makefile.builder, debian, archlinux
+top-level entries: .gitignore, .gitlab-ci.yml, .qubesbuilder, LICENSE, Makefile, Makefile.builder, appvm-scripts, archlinux, debian, debian-quilt, get-latest-pulsecore.sh, gui-agent, include, patches.debian, pipewire, pulse, rpm, rpm_spec, selinux, series-debian-vm.conf, version, window-icon-updater, xf86-input-mfndev, xf86-qubes-common, xf86-video-dummy
+largest files (lines path):
+    2904 gui-agent/vmside.c
+    1857 debian/changelog
+    1828 pipewire/qubes-pw-module.c
+    1474 xf86-video-dummy/src/dummy_driver.c
+     909 pulse/module-vchan-sink.c
+     767 xf86-input-mfndev/src/qubes.c
+     683 pulse/pulsecore-14.2/atomic.h
+     683 pulse/pulsecore-14.1/atomic.h
+README head:
+(none)

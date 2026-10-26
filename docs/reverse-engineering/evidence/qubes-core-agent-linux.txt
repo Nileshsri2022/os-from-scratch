@@ -1,0 +1,19 @@
+repo: qubes-core-agent-linux
+url: https://github.com/QubesOS/qubes-core-agent-linux
+head: 9907b87 (shallow clone, 2026-10-26)
+license(first line): GNU GENERAL PUBLIC LICENSE
+tracked files: 471 | total LOC (files<2MB): 22794
+extensions by file count: (none)×101, .conf×82, .desktop×44, .sh×35, .service×23, .py×20, .install×13, .config×13
+build markers: .qubesbuilder, Makefile, Makefile.builder, setup.py, debian, archlinux
+top-level entries: .coveragerc, .gitignore, .gitlab-ci.yml, .qubesbuilder, LICENSE, Makefile, Makefile.builder, app-menu, applications-dropins, archlinux, autostart-dropins, boot, ci, config-overrides, debian, debian-quilt, doc, filesystem, init, misc, network, package-managers, passwordless-root, patches.debian, qubes-rpc
+largest files (lines path):
+    4312 debian/changelog
+    1387 rpm_spec/core-agent.spec.in
+    1017 qubes-rpc/tar2qfile.c
+     702 qubesagent/firewall.py
+     618 qubesagent/test_firewall.py
+     460 archlinux/PKGBUILD.install
+     447 misc/mime/packages/qubes-os.org.xml
+     346 archlinux/PKGBUILD.in
+README head:
+(none)

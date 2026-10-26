@@ -1,0 +1,23 @@
+repo: qubes-mgmt-salt-base-overrides
+url: https://github.com/QubesOS/qubes-mgmt-salt-base-overrides
+head: ac7827c (shallow clone, 2026-10-26)
+license(first line): Copyright (C) 2015 Jason Mehring <nrgaway@gmail.com>
+tracked files: 27 | total LOC (files<2MB): 979
+extensions by file count: (none)×14, .py×6, .install×2, .yml×1, .builder×1, .rst×1, .postinst×1, .in×1
+build markers: Makefile, Makefile.builder, setup.py, debian
+top-level entries: .gitignore, .travis.yml, FORMULA, LICENSE, Makefile, Makefile.builder, README.rst, _modules, debian, rpm_spec, setup.py, src, version
+largest files (lines path):
+     271 _modules/localemod.py
+     148 src/qubessaltpatches/url.py
+      96 src/qubessaltpatches/config.py
+      67 src/qubessaltpatches/update.py
+      66 debian/changelog
+      58 rpm_spec/qubes-mgmt-salt-base-overrides.spec.in
+      51 debian/qubes-mgmt-salt-base-overrides.postinst
+      32 debian/control
+README head:
+======================
+salt-overrides Formula
+======================
+
+Custom modules to override existing Salt modules due to upstream bugs or implementation conflicts.

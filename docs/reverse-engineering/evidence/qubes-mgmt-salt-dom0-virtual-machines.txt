@@ -1,0 +1,26 @@
+repo: qubes-mgmt-salt-dom0-virtual-machines
+url: https://github.com/QubesOS/qubes-mgmt-salt-dom0-virtual-machines
+head: 823040c (shallow clone, 2026-10-26)
+license(first line): Copyright (C) 2015 Jason Mehring <nrgaway@gmail.com>
+tracked files: 102 | total LOC (files<2MB): 2406
+extensions by file count: .sls×46, .top×32, (none)×14, .jinja×3, .yml×1, .builder×1, .md×1, .conffiles×1
+build markers: .qubesbuilder, Makefile, Makefile.builder
+top-level entries: .gitignore, .gitlab-ci.yml, .qubesbuilder, FORMULA, LICENSE, Makefile, Makefile.builder, README.md, debian.dom0, etc, pillar, qvm, rpm_spec, version
+largest files (lines path):
+     162 rpm_spec/qubes-mgmt-salt-dom0-virtual-machines-dom0.spec.in
+     125 qvm/sys-usb.sls
+     113 qvm/template.jinja
+      84 qvm/sys-gui-gpu.sls
+      84 pillar/qvm/init.sls
+      83 qvm/template-gui.jinja
+      82 qvm/sys-audio.sls
+      75 qvm/sys-gui-template.sls
+README head:
+Virtual Machine Formulae
+========================
+
+Downloads, installs and, configures VMs. Uses pillar data to define
+default VM names and configuration details. For more information,
+including a list of available states, please see the full documentation:
+
+https://www.qubes-os.org/doc/salt/#virtual-machine-formulae
