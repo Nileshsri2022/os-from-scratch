@@ -1,19 +1,68 @@
-# GLOSSARY — MiniQubes (working name for our OS)
+# MiniQubes
 
-One shared vocabulary. Every doc, ticket, and commit uses these words with these meanings.
+Our Qubes-like OS built from scratch: one trusted Linux **Host**, many isolated
+**qubes** for separate areas of life, and the smallest control plane that can
+keep them apart. One shared vocabulary — every doc, ticket, and commit uses
+these words with these meanings. (Upstream Qubes equivalents are mapped in
+`docs/spec.md` → Components.)
 
-| Term | Meaning | Upstream Qubes equivalent |
-|---|---|---|
-| **Qube** | One VM compartment dedicated to a single security domain/purpose (e.g. `personal`, `vault`, `untrusted`). The unit of isolation and of daily use. | qube / VM |
-| **Host** | The trusted Linux machine/domain running the admin daemon and the desktop. The trusted computing base together with the hypervisor. | dom0 |
-| **Admin daemon** | Trusted control-plane process on the host. Owns the qube registry and all lifecycle decisions. The only component allowed to create/start/stop qubes. | qubesd (`qubes-core-admin`) |
-| **Core** | The admin daemon's brain: lifecycle rules + validation, written against a Backend, never against a concrete hypervisor. | core-admin logic |
-| **Backend** | Hypervisor driver behind a tiny interface (`create/start/stop/remove/get/list`). `LibvirtBackend` = real KVM VMs. `FakeBackend` = JSON-file simulation for development and tests on machines without KVM. | libvirt/Xen layer |
-| **Template** | A read-only root filesystem image. AppQubes boot from it via copy-on-write, so 10 qubes share one OS install. | TemplateVM |
-| **AppQube** | A qube whose root comes from a Template (CoW clone). Only its private data (home) persists across reboots. | AppVM |
-| **Guest agent** | Small daemon running *inside* a qube. Serves RPCs from the host/other qubes (file copy, info, …). | `qubes-core-agent-linux` |
-| **Channel** | The host↔guest transport the agent speaks over. Designed for virtio-vsock; in development it runs over plain sockets. | vchan + QubesDB |
-| **RPC service** | A named operation one qube may request of another over the channel (e.g. `filecopy`, `open-url`). Every call is checked against Policy. | qrexec service |
-| **Policy** | Rules deciding, per (source qube, RPC service, target qube): allow or deny. Deny by default. | qrexec policy |
+## Language
 
-**Not our words (yet):** NetQube/sys-net, Disposable, seamless GUI — deliberately deferred (see `docs/spec.md` non-goals); the glossary grows when tickets adopt them.
+**Qube**:
+One VM compartment dedicated to a single security domain/purpose (e.g.
+`personal`, `vault`, `untrusted`). The unit of isolation and of daily use.
+_Avoid_: VM, container, sandbox
+
+**Host**:
+The trusted Linux machine running the control plane and the desktop; together
+with the hypervisor it is the trusted computing base.
+_Avoid_: dom0, hypervisor host
+
+**Admin daemon**:
+The trusted authority on the Host that owns the qube registry and every
+lifecycle decision. The only thing allowed to create, start, or stop qubes.
+_Avoid_: manager, orchestrator, server
+
+**Core**:
+The Admin daemon's decision-making part: lifecycle rules and validation,
+expressed against a Backend, never against a concrete hypervisor.
+_Avoid_: controller, engine
+
+**Backend**:
+The hypervisor-facing part beneath Core that actually creates, starts, and
+stops qubes. Two exist: the real one (libvirt/KVM) and a fake for development
+on machines without KVM.
+_Avoid_: driver, hypervisor layer
+
+**Template**:
+A read-only root filesystem image that AppQubes boot from, so many qubes share
+one OS install.
+_Avoid_: base image, master image
+
+**AppQube**:
+A qube whose root filesystem comes from a Template via copy-on-write. Only its
+private data (home) persists across reboots.
+_Avoid_: AppVM, clone
+
+**Guest agent**:
+The small program running inside a qube that answers RPC requests on that
+qube's behalf.
+_Avoid_: in-guest daemon, helper
+
+**Channel**:
+The single communication path between the Host and a qube's Guest agent,
+carrying RPC requests and replies.
+_Avoid_: socket, pipe, vchan
+
+**RPC service**:
+A named operation one qube may request of another (or the Host of a qube) over
+the Channel, e.g. `filecopy`. Every call is checked against Policy.
+_Avoid_: command, endpoint
+
+**Policy**:
+The set of rules that decides, for each (source qube, RPC service, target
+qube), allow or deny. Anything not allowed is denied.
+_Avoid_: ACL, firewall rules
+
+Words deliberately **not** ours yet (NetQube, Disposable, seamless GUI) live in
+`docs/spec.md` non-goals; terms enter this glossary when a ticket adopts them.

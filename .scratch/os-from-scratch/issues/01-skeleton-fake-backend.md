@@ -1,6 +1,6 @@
 # 01 — Project skeleton: Core lifecycle + FakeBackend + CLI
 
-Blocked by: — · Status: **doing**
+Blocked by: — · Status: **done** (2026-10-26)
 
 ## Goal
 `python3 -m miniqubes create/list/start/stop/remove` works end-to-end against a simulated
@@ -21,9 +21,9 @@ Control plane vs hypervisor; why upstream separates qubesd from Xen/libvirt; sta
 - `tests/`: stdlib `unittest` — Core rules via FakeBackend on a temp file; one CLI smoke test.
 
 ## Steps
-- [ ] Write code + tests
-- [ ] `python3 -m unittest discover -s tests -v` green
-- [ ] CLI demo transcript → paste into Result
+- [x] Write code + tests
+- [x] `python3 -m unittest discover -s tests -v` green
+- [x] CLI demo transcript → paste into Result
 
 ## Verify
 Tests pass; demo shows: create `personal` (template `fedora-40`) + `vault`, start `personal`,

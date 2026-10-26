@@ -71,7 +71,8 @@ Classics are permissive (BSD-3 / MIT / MIT+Apache).
 - Spec: add a "post-v1 candidates" line: config-watch service (QubesDB idea), `mq apply`
   default-qube set (mgmt-salt idea), seamless GUI (gui protocol) — as named non-goals with triggers.
 
-## ❓ Develop using this?
-If **yes**: I fold the 4 deltas above into spec/tickets (docs commit), then continue with
-ticket 03 implementation. If **no/partial**: tell me which findings to drop. Either way, no
-code borrows anything until you answer — per the REA rule in `AGENTS.md`.
+## ✅ Develop using this? — YES (owner, 2026-10-26)
+Answered: *"ok start but with using ask-matt flow docs then implement using rea."*
+The 4 deltas above are folded into `docs/spec.md` (milestones + post-v1 candidates) and
+tickets 03/04/06; implementation proceeds ticket-by-ticket per the ask-matt flow
+(docs → implement with TDD → code-review), starting with ticket 03.
